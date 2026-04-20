@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserCreationRequest {
+public class UserRegisterRequest {
     @NotBlank(message = "USER_REQUIRED")
     @Size(min = 5, message = "Usernames must have at least 5 characters.")
     String username;

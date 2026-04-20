@@ -3,6 +3,7 @@ package com.example.fashion_db.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,6 +28,8 @@ public class User {
     LocalDate dob;
     boolean gender;
     boolean isActive;
+
+    @CreationTimestamp
     LocalDateTime created_at;
 
     @ManyToMany

@@ -8,8 +8,8 @@
 //import org.springframework.security.crypto.password.PasswordEncoder;
 //
 //@Configuration // Đánh dấu đây là class cấu hình của Spring
-//@EnableWebSecurity // Bật cơ chế bảo mật của Spring Security
-//@EnableMethodSecurity // Phân quyền trực tiếp trên các hàm trong Service hoặc Controller
+////@EnableWebSecurity // Bật cơ chế bảo mật của Spring Security
+////@EnableMethodSecurity // Phân quyền trực tiếp trên các hàm trong Service hoặc Controller
 //public class SecurityConfig {
 //
 //    @Bean
