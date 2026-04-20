@@ -15,19 +15,16 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserRegisterRequest {
-    @NotBlank(message = "USER_REQUIRED")
-    @Size(min = 5, message = "Usernames must have at least 5 characters.")
+    @Size(min = 5, message = "USERNAME_INVALID")
     String username;
 
-    @NotBlank(message = "EMAIL_REQUIRED")
     @Email(message = "EMAIL_INVALID")
     String email;
 
-    @Size(min = 8, message = "Password must have at least 8 characters.")
-    @NotBlank(message = "PASSWORD_REQUIRED")
+    @Size(min = 8, message = "PASSWORD_INVALID")
     String password;
 
-    @Past(message = "DOB_INVALID")
+    @Past(message = "INVALID_DOB")
     LocalDate dob;
     boolean gender;
 }
