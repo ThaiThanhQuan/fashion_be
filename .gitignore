@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# OR, if you only want to exclude specific ones:
+application.properties
+
 ### STS ###
 .apt_generated
 .classpath
