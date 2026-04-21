@@ -17,10 +17,16 @@ public enum ErrorCode {
     EMAIL_INVALID(1011, "Invalid email format", HttpStatus.BAD_REQUEST),
     INVALID_DOB(1012, "Date of birth must be in the past", HttpStatus.BAD_REQUEST),
 
+    // Authentication & Authorization
+    UNAUTHENTICATED(1008, "Unauthenticated", HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED(1009, "You do not have permission", HttpStatus.FORBIDDEN),
+
     // Business Logic Errors
     USER_EXISTED(1001, "User already exists", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXISTED(1003, "Role does not exist", HttpStatus.NOT_FOUND),
     USER_NOT_EXISTED(1004, "User does not exist", HttpStatus.NOT_FOUND);
+
+
 
     private int code;
     private String message;
