@@ -32,7 +32,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         // Cấu hình quyền truy cập API
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST,"/auth/register","/auth/login").permitAll()
+        httpSecurity.authorizeHttpRequests(request ->
+                request.requestMatchers(HttpMethod.POST,"/auth/register",
+                                                        "/auth/login",
+                                                        "/auth/refresh",
+                                                        "/auth/introspec",
+                                                        "/auth/logout"
+                                        ).permitAll()
                 .anyRequest()
                 .authenticated());
 
