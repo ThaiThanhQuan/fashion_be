@@ -12,7 +12,7 @@ import java.util.Date;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
-public class RefreshToken {
+public class InvalidatedToken {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
@@ -26,6 +26,4 @@ public class RefreshToken {
 
     @Column(nullable = false)
     Date expiryTime;
-
-    boolean revoked;
 }

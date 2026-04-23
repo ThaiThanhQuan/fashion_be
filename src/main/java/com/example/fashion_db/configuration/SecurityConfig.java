@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration // Đánh dấu đây là class cấu hình của Spring
@@ -21,7 +23,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SecurityConfig {
 
-//     CustomJwtDecoder customJwtDecoder;
+     CustomJwtDecoder customJwtDecoder;
+     JwtAuthenticationConfig jwtAuthenticationConfig;
+     JwtAuthenticationEntryPonint jwtAuthenticationEntryPonint;
 //     CorsConfig corsConfig;
 
     @Bean
@@ -30,7 +34,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
         // Cấu hình quyền truy cập API
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST,"/auth/register",
@@ -43,16 +47,17 @@ public class SecurityConfig {
                 .authenticated());
 
         // Cấu hình xác thực JWT
-//        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
-//                                .decoder(customJwtDecoder)
-//                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-//                        .authenticationEntryPoint(
-//                                new JwtAuthenticationEntryPoint()) // xử lý những lỗi liên quan đến việc xác thực
-//        );
+        httpSecurity.oauth2ResourceServer(
+                oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                                .decoder(customJwtDecoder)
+                                .jwtAuthenticationConverter(jwtAuthenticationConfig.jwtAuthenticationConverter())) // Kiểm tra các quyền hạn
+                .authenticationEntryPoint(jwtAuthenticationEntryPonint) // xử lý những lỗi liên quan đến việc xác thực
+        );
 
         // Tắt CSRF (vì đang làm REST API dùng JWT, không dùng session)
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         return httpSecurity.build();
     }
+
 }

@@ -4,13 +4,13 @@ import com.example.fashion_db.dto.request.*;
 import com.example.fashion_db.dto.response.AuthenticationResponse;
 import com.example.fashion_db.dto.response.IntrospectResponse;
 import com.example.fashion_db.dto.response.UserResponse;
-import com.example.fashion_db.entity.RefreshToken;
+import com.example.fashion_db.entity.InvalidatedToken;
 import com.example.fashion_db.entity.Role;
 import com.example.fashion_db.entity.User;
 import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
 import com.example.fashion_db.mapper.UserMapper;
-import com.example.fashion_db.repository.RefreshTokenRepository;
+import com.example.fashion_db.repository.InvalidatedTokenRepository;
 import com.example.fashion_db.repository.RoleRepository;
 import com.example.fashion_db.repository.UserRepository;
 import com.nimbusds.jose.*;
@@ -44,7 +44,7 @@ public class AuthenticationService {
     UserRepository userRepository;
     RoleRepository roleRepository;
     UserMapper userMapper;
-    RefreshTokenRepository refreshTokenRepository;
+    InvalidatedTokenRepository invalidatedTokenRepository;
     PasswordEncoder passwordEncoder;
 
     @NonFinal
@@ -119,10 +119,10 @@ public class AuthenticationService {
             var user = userRepository.findByUsername(username)
                     .orElse(null);
 
-            RefreshToken refreshToken =
-                    RefreshToken.builder().jwtId(jit).expiryTime(expiryTime).user(user).revoked(true).build();
+            InvalidatedToken invalidatedToken =
+                    InvalidatedToken.builder().jwtId(jit).expiryTime(expiryTime).user(user).build();
 
-            refreshTokenRepository.save(refreshToken);
+            invalidatedTokenRepository.save(invalidatedToken);
 
         } catch (AppException exception) {
             log.info("Token already expired");
@@ -138,8 +138,8 @@ public class AuthenticationService {
         var username = signJWT.getJWTClaimsSet().getSubject();
         var user = userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
-        RefreshToken refreshToken = RefreshToken.builder().jwtId(jti).expiryTime(expiryTime).user(user).revoked(true).build();
-        refreshTokenRepository.save(refreshToken);
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder().jwtId(jti).expiryTime(expiryTime).user(user).build();
+        invalidatedTokenRepository.save(invalidatedToken);
 
         var token = generateToken(user);
 
@@ -161,7 +161,7 @@ public class AuthenticationService {
 
         if (!(verified && expityTime.after(new Date()))) throw new AppException(ErrorCode.UNAUTHENTICATED);
 
-        if (refreshTokenRepository.existsByJwtId(signedJWT.getJWTClaimsSet().getJWTID()))
+        if (invalidatedTokenRepository.existsByJwtId(signedJWT.getJWTClaimsSet().getJWTID()))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         return signedJWT;
