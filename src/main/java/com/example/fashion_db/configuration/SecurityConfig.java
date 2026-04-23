@@ -26,7 +26,6 @@ public class SecurityConfig {
      CustomJwtDecoder customJwtDecoder;
      JwtAuthenticationConfig jwtAuthenticationConfig;
      JwtAuthenticationEntryPonint jwtAuthenticationEntryPonint;
-//     CorsConfig corsConfig;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -36,15 +35,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
         // Cấu hình quyền truy cập API
-        httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST,"/auth/register",
+        httpSecurity.authorizeHttpRequests(request ->request
+                        .requestMatchers(HttpMethod.POST,"/auth/register",
                                                         "/auth/login",
                                                         "/auth/refresh",
                                                         "/auth/introspec",
                                                         "/auth/logout"
                                         ).permitAll()
-                .anyRequest()
-                .authenticated());
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest()
+                        .authenticated());
 
         // Cấu hình xác thực JWT
         httpSecurity.oauth2ResourceServer(

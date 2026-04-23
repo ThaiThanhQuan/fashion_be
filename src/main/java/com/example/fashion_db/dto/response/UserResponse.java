@@ -20,7 +20,7 @@ public class UserResponse {
     String password;
     LocalDate dob;
     boolean gender;
-    boolean isActive;
+    boolean active;
     LocalDateTime created_at;
 
     Set<RoleResponse> roles;

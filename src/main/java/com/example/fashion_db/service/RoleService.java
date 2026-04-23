@@ -10,6 +10,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -22,5 +24,13 @@ public class RoleService {
         var role = roleMapper.toRole(request);
         role = roleRepository.save(role);
         return roleMapper.toRoleResponse(role);
+    }
+
+    public List<RoleResponse> getAll() {
+        return roleRepository.findAll().stream().map(roleMapper::toRoleResponse).toList();
+    }
+
+    public void delete(String role) {
+        roleRepository.deleteById(role);
     }
 }

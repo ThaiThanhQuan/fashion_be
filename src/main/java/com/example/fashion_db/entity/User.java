@@ -27,7 +27,7 @@ public class User {
     String password;
     LocalDate dob;
     boolean gender;
-    boolean isActive;
+    boolean active;
 
     @CreationTimestamp
     LocalDateTime created_at;
