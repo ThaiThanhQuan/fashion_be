@@ -4,9 +4,7 @@ import com.example.fashion_db.dto.request.UserRegisterRequest;
 import com.example.fashion_db.dto.request.UserUpdateRequest;
 import com.example.fashion_db.dto.response.UserResponse;
 import com.example.fashion_db.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -18,6 +16,8 @@ public interface UserMapper {
 
     List<UserResponse> toUserResponseList(List<User> users);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "active", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateRequest request);
 }

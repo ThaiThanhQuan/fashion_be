@@ -42,7 +42,6 @@ public class SecurityConfig {
                                                         "/auth/introspec",
                                                         "/auth/logout"
                                         ).permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest()
                         .authenticated());
 
