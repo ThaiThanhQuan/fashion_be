@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,6 +34,9 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "category_product_id")
     CategoriesProduct category;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    List<ProductVariants> variants;
 
     @CreationTimestamp
     LocalDateTime createdAt;

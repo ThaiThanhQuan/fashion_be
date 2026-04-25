@@ -29,7 +29,9 @@ public enum ErrorCode {
     // Business Logic Errors
     USER_EXISTED(1001, "User already exists", HttpStatus.BAD_REQUEST),
     PRODUCT_EXISTED(1001, "Product already exists", HttpStatus.BAD_REQUEST),
+    VARIANT_SIZE_EXISTED(1001, "Size already exists", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXISTED(1003, "Role does not exist", HttpStatus.NOT_FOUND),
+    VARIANT_NOT_FOUND(1003, "Variant does not exist", HttpStatus.NOT_FOUND),
     USER_NOT_EXISTED(1004, "User does not exist", HttpStatus.NOT_FOUND),
     CATEGORY_NOT_FOUND(1013, "Category does not exist", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_EXISTED(1013, "Product does not exist", HttpStatus.NOT_FOUND),

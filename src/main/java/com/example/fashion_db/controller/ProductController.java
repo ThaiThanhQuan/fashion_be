@@ -31,15 +31,6 @@ public class ProductController {
                 .build();
     }
 
-    @GetMapping
-    public ApiResponse<PageResponse<ProductResponse>> getAllProduct(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ApiResponse.<PageResponse<ProductResponse>>builder()
-                .result(productService.getAllProduct(page, size))
-                .build();
-    }
-
     @GetMapping("/{productId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<ProductResponse> getProductById(@PathVariable String productId) {
@@ -89,6 +80,7 @@ public class ProductController {
     }
 
     @GetMapping("/slug/{slug}")
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<ProductResponse> getProductBySlug(@PathVariable String slug) {
         return ApiResponse.<ProductResponse>builder()
                 .result(productService.getProductBySlug(slug))
@@ -111,6 +103,35 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size) {
         return ApiResponse.<PageResponse<ProductResponse>>builder()
                 .result(productService.getFeaturedProducts(page, size))
+                .build();
+    }
+
+    @GetMapping("/price")
+    public ApiResponse<PageResponse<ProductResponse>> getProductsByPriceRange(
+            @RequestParam(defaultValue = "0") Long minPrice,
+            @RequestParam(defaultValue = "999999999") Long maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .result(productService.getProductsByPriceRange(minPrice, maxPrice, page, size))
+                .build();
+    }
+
+    @GetMapping
+    public ApiResponse<PageResponse<ProductResponse>> filterProducts(
+            @RequestParam(required = false) String categoryId,
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) Boolean featured,
+            @RequestParam(required = false) Long minPrice,
+            @RequestParam(required = false) Long maxPrice,
+            @RequestParam(required = false) String size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .result(productService.filterProducts(
+                        categoryId, active, featured,
+                        minPrice, maxPrice, size, sortBy, page, pageSize))
                 .build();
     }
 }

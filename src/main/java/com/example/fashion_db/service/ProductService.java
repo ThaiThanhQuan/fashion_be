@@ -9,6 +9,7 @@ import com.example.fashion_db.exception.ErrorCode;
 import com.example.fashion_db.mapper.ProductMapper;
 import com.example.fashion_db.repository.CategoriesProductRepository;
 import com.example.fashion_db.repository.ProductRepository;
+import com.example.fashion_db.specification.ProductSpecification;
 import com.example.fashion_db.utils.SlugUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 
@@ -109,6 +111,40 @@ public class ProductService {
         Pageable pageable = PageRequest.of(page, size);
         return PageResponse.of(productRepository.findByFeatured(true, pageable)
                         .map(productMapper::toProductResponse));
+    }
+
+    public PageResponse<ProductResponse> getProductsByPriceRange(Long minPrice, Long maxPrice, int page, int size) {
+        return PageResponse.of(productRepository.findByPriceBetween(minPrice, maxPrice, PageRequest.of(page, size))
+                .map(productMapper::toProductResponse));
+    }
+
+    public PageResponse<ProductResponse> filterProducts(
+            String categoryId,
+            Boolean active,
+            Boolean featured,
+            Long minPrice,
+            Long maxPrice,
+            String size,
+            String sortBy,
+            int page,
+            int pageSize) {
+
+        Sort sort = switch (sortBy != null ? sortBy : "") {
+            case "price_asc"  -> Sort.by("price").ascending();
+            case "price_desc" -> Sort.by("price").descending();
+            case "newest"     -> Sort.by("createdAt").descending();
+            default           -> Sort.unsorted();
+        };
+
+        Specification<Product> spec = Specification
+                .where(ProductSpecification.hasCategory(categoryId))
+                .and(ProductSpecification.hasActive(active))
+                .and(ProductSpecification.hasFeatured(featured))
+                .and(ProductSpecification.hasPriceBetween(minPrice, maxPrice))
+                .and(ProductSpecification.hasSize(size));
+
+        return PageResponse.of(productRepository.findAll(spec, PageRequest.of(page, pageSize, sort))
+                .map(productMapper::toProductResponse));
     }
 
 }

@@ -1,7 +1,5 @@
 package com.example.fashion_db.dto.response;
 
-import com.example.fashion_db.entity.CategoriesProduct;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
