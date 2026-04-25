@@ -4,26 +4,29 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
-
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
-public class InvalidatedToken {
+@Entity
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
+    @Column(unique = true)
+    String title;
+
+    @Column(unique = true)
+    String slug;
+
+    String label;
+    String description;
+    Long price;
+    boolean active;
+
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @Column(nullable = false, unique = true)
-    String jwtId;
-
-    @Column(nullable = false)
-    Date expiryTime;
+    @JoinColumn(name = "category_product_id")
+    CategoriesProduct category;
 }

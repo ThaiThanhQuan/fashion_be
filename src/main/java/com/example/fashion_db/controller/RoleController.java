@@ -42,6 +42,8 @@ public class RoleController {
     @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<Void> delete(@PathVariable String roleId) {
         roleService.delete(roleId);
-        return ApiResponse.<Void>builder().build();
+        return ApiResponse.<Void>builder()
+                .message("Delete role successfully")
+                .build();
     }
 }
