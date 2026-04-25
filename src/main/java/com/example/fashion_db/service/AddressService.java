@@ -2,6 +2,7 @@ package com.example.fashion_db.service;
 
 import com.example.fashion_db.dto.request.AddressRequest;
 import com.example.fashion_db.dto.response.AddressResponse;
+import com.example.fashion_db.dto.response.PageResponse;
 import com.example.fashion_db.entity.Address;
 import com.example.fashion_db.entity.User;
 import com.example.fashion_db.exception.AppException;
@@ -13,6 +14,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -37,20 +40,18 @@ public class AddressService {
         return addressMapper.toAddressResponse(addressRepository.save(address));
     }
 
-    public List<AddressResponse> getAllAddress() {
-        return addressRepository.findAll().stream()
-                .map(addressMapper::toAddressResponse)
-                .toList();
+    public PageResponse<AddressResponse> getAllAddress(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return PageResponse.of(addressRepository.findAll(pageable).map(addressMapper::toAddressResponse));
     }
 
-    public List<AddressResponse> getAddressesByUserId(String userId) {
+    public PageResponse<AddressResponse> getAddressesByUserId(String userId, int page, int size) {
         if (!userRepository.existsById(userId)) {
             throw new AppException(ErrorCode.USER_NOT_EXISTED);
         }
+        Pageable pageable = PageRequest.of(page, size);
 
-        return addressRepository.findAllByUserId(userId).stream()
-                .map(addressMapper::toAddressResponse)
-                .toList();
+        return PageResponse.of(addressRepository.findAllByUserId(userId, pageable).map(addressMapper::toAddressResponse));
     }
 
     public AddressResponse updateAddress(String addressId, AddressRequest request) {

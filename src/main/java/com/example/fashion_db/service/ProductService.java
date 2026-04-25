@@ -1,6 +1,7 @@
 package com.example.fashion_db.service;
 
 import com.example.fashion_db.dto.request.ProductRequest;
+import com.example.fashion_db.dto.response.PageResponse;
 import com.example.fashion_db.dto.response.ProductResponse;
 import com.example.fashion_db.entity.Product;
 import com.example.fashion_db.exception.AppException;
@@ -13,7 +14,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 
@@ -39,10 +45,10 @@ public class ProductService {
         return productMapper.toProductResponse(productRepository.save(product));
     }
 
-    public List<ProductResponse> getAllProduct(){
-        return productRepository.findAll().stream()
-                .map(productMapper::toProductResponse)
-                .toList();
+    public PageResponse<ProductResponse> getAllProduct(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return PageResponse.of(productRepository.findAll(pageable)
+                .map(productMapper::toProductResponse));
     }
 
     public ProductResponse getProductById(String productId) {
@@ -67,18 +73,16 @@ public class ProductService {
         productRepository.deleteById(productId);
     }
 
-    public List<ProductResponse> getProductsByCategory(String categoryId) {
-        return productRepository.findByCategory_Id(categoryId)
-                .stream()
-                .map(productMapper::toProductResponse)
-                .toList();
+    public PageResponse<ProductResponse> getProductsByCategory(String categoryId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return PageResponse.of(productRepository.findByCategory_Id(categoryId, pageable)
+                .map(productMapper::toProductResponse));
     }
 
-    public List<ProductResponse> getProductsByActive(boolean active) {
-        return productRepository.findByActive(active)
-                .stream()
-                .map(productMapper::toProductResponse)
-                .toList();
+    public PageResponse<ProductResponse> getProductsByActive(boolean active, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return PageResponse.of(productRepository.findByActive(active, pageable)
+                .map(productMapper::toProductResponse));
     }
 
     public ProductResponse getProductBySlug(String slug) {
@@ -88,23 +92,23 @@ public class ProductService {
         );
     }
 
-    public List<ProductResponse> getProductsSorted(String sortBy) {
-        List<Product> products = switch (sortBy) {
-            case "newest"     -> productRepository.findAllByOrderByCreatedAtDesc();
-            case "price_asc"  -> productRepository.findAllByOrderByPriceAsc();
-            case "price_desc" -> productRepository.findAllByOrderByPriceDesc();
-            default           -> productRepository.findAll();
+    public PageResponse<ProductResponse> getProductsSorted(String sortBy, int page, int size) {
+        Sort sort = switch (sortBy) {
+            case "price_asc"  -> Sort.by("price").ascending();
+            case "price_desc" -> Sort.by("price").descending();
+            case "newest"     -> Sort.by("createdAt").descending();
+            default           -> Sort.unsorted();
         };
 
-        return products.stream()
-                .map(productMapper::toProductResponse)
-                .toList();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return PageResponse.of(productRepository.findAll(pageable)
+                .map(productMapper::toProductResponse));
     }
 
-    public List<ProductResponse> getFeaturedProducts() {
-        return productRepository.findByFeatured(true)
-                .stream()
-                .map(productMapper::toProductResponse)
-                .toList();
+    public PageResponse<ProductResponse> getFeaturedProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return PageResponse.of(productRepository.findByFeatured(true, pageable)
+                        .map(productMapper::toProductResponse));
     }
+
 }

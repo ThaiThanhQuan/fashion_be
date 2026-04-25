@@ -2,6 +2,7 @@ package com.example.fashion_db.controller;
 
 import com.example.fashion_db.dto.request.UserUpdateRequest;
 import com.example.fashion_db.dto.response.ApiResponse;
+import com.example.fashion_db.dto.response.PageResponse;
 import com.example.fashion_db.dto.response.UserResponse;
 import com.example.fashion_db.service.UserService;
 import jakarta.validation.Valid;
@@ -25,9 +26,11 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<List<UserResponse>> getAllUser() {
-        return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.getAllUser())
+    ApiResponse<PageResponse<UserResponse>> getAllUser(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<UserResponse>>builder()
+                .result(userService.getAllUser(page, size))
                 .build();
     }
 

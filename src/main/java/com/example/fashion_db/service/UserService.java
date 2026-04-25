@@ -1,6 +1,7 @@
 package com.example.fashion_db.service;
 
 import com.example.fashion_db.dto.request.UserUpdateRequest;
+import com.example.fashion_db.dto.response.PageResponse;
 import com.example.fashion_db.dto.response.UserResponse;
 import com.example.fashion_db.entity.User;
 import com.example.fashion_db.exception.AppException;
@@ -12,6 +13,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,8 +33,9 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 
-    public List<UserResponse> getAllUser() {
-        return userMapper.toUserResponseList(userRepository.findAll());
+    public PageResponse<UserResponse> getAllUser(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return PageResponse.of(userRepository.findAll(pageable).map(userMapper::toUserResponse));
     }
 
     public UserResponse adminUpdateUser(String userId, UserUpdateRequest request) {

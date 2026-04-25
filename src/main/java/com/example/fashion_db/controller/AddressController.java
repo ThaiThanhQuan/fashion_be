@@ -4,6 +4,7 @@ package com.example.fashion_db.controller;
 import com.example.fashion_db.dto.request.AddressRequest;
 import com.example.fashion_db.dto.response.AddressResponse;
 import com.example.fashion_db.dto.response.ApiResponse;
+import com.example.fashion_db.dto.response.PageResponse;
 import com.example.fashion_db.service.AddressService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -32,17 +33,22 @@ public class AddressController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<List<AddressResponse>> getAllAddress() {
-        return ApiResponse.<List<AddressResponse>>builder()
-                .result(addressService.getAllAddress())
+    ApiResponse<PageResponse<AddressResponse>> getAllAddress(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<AddressResponse>>builder()
+                .result(addressService.getAllAddress(page, size))
                 .build();
     }
 
     @GetMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<List<AddressResponse>> getAllAddressByUserId(@PathVariable String userId) {
-        return ApiResponse.<List<AddressResponse>>builder()
-                .result(addressService.getAddressesByUserId(userId))
+    ApiResponse<PageResponse<AddressResponse>> getAllAddressByUserId(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<AddressResponse>>builder()
+                .result(addressService.getAddressesByUserId(userId, page, size))
                 .build();
     }
 

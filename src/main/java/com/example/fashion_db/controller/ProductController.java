@@ -2,12 +2,14 @@ package com.example.fashion_db.controller;
 
 import com.example.fashion_db.dto.request.ProductRequest;
 import com.example.fashion_db.dto.response.ApiResponse;
+import com.example.fashion_db.dto.response.PageResponse;
 import com.example.fashion_db.dto.response.ProductResponse;
 import com.example.fashion_db.service.ProductService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,13 +32,16 @@ public class ProductController {
     }
 
     @GetMapping
-    public ApiResponse<List<ProductResponse>> getAllProduct() {
-        return ApiResponse.<List<ProductResponse>>builder()
-                .result(productService.getAllProduct())
+    public ApiResponse<PageResponse<ProductResponse>> getAllProduct(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .result(productService.getAllProduct(page, size))
                 .build();
     }
 
     @GetMapping("/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<ProductResponse> getProductById(@PathVariable String productId) {
         return ApiResponse.<ProductResponse>builder()
                 .result(productService.getProductById(productId))
@@ -44,6 +49,7 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<ProductResponse> updateProductById(@PathVariable String productId, @RequestBody ProductRequest request) {
         return ApiResponse.<ProductResponse>builder()
                 .result(productService.updateProduct(productId,request))
@@ -51,6 +57,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> deleteProductById(@PathVariable String productId) {
         productService.deleteProduct(productId);
         return ApiResponse.<Void>builder()
@@ -59,16 +66,25 @@ public class ProductController {
     }
 
     @GetMapping("/category")
-    public ApiResponse<List<ProductResponse>> getProductsByCategory(@RequestParam String categoryId) {
-        return ApiResponse.<List<ProductResponse>>builder()
-                .result(productService.getProductsByCategory(categoryId))
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<PageResponse<ProductResponse>> getProductsByCategory(
+            @RequestParam String categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .result(productService.getProductsByCategory(categoryId,page,size))
                 .build();
     }
 
     @GetMapping("/active")
-    public ApiResponse<List<ProductResponse>> getProductsByActive(@RequestParam boolean active) {
-        return ApiResponse.<List<ProductResponse>>builder()
-                .result(productService.getProductsByActive(active))
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<PageResponse<ProductResponse>> getProductsByActive(
+            @RequestParam boolean active,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .result(productService.getProductsByActive(active, page, size))
                 .build();
     }
 
@@ -80,16 +96,21 @@ public class ProductController {
     }
 
     @GetMapping("/sort")
-    ApiResponse<List<ProductResponse>> getProductsSorted(@RequestParam String sortBy) {
-        return ApiResponse.<List<ProductResponse>>builder()
-                .result(productService.getProductsSorted(sortBy))
+    ApiResponse<PageResponse<ProductResponse>> getProductsSorted(
+            @RequestParam String sortBy,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size ) {
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .result(productService.getProductsSorted(sortBy, page, size))
                 .build();
     }
 
     @GetMapping("/feature")
-    public ApiResponse<List<ProductResponse>> getFeaturedProducts() {
-        return ApiResponse.<List<ProductResponse>>builder()
-                .result(productService.getFeaturedProducts())
+    public ApiResponse<PageResponse<ProductResponse>> getFeaturedProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .result(productService.getFeaturedProducts(page, size))
                 .build();
     }
 }
