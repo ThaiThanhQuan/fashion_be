@@ -46,14 +46,14 @@ public class UserService {
             user.setRoles(new HashSet<>(roles));
         }
 
-        user.setActive(request.isActive());
+        user.setActive(request.getActive());
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public UserResponse updateMyInfo(UserUpdateRequest request, String currentUsername) {
-        User user = userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    public UserResponse updateMyInfo(UserUpdateRequest request) {
+        String name  = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         userMapper.updateUser(user, request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));

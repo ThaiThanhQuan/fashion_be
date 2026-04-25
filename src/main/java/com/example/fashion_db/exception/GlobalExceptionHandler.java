@@ -18,10 +18,12 @@ public class GlobalExceptionHandler {
 
     //  Bắt các lỗi còn lại
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse> handlingException() {
+    ResponseEntity<ApiResponse> handlingException(Exception exception) {
+        log.error("Unhandled exception", exception);
+
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
-        apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
+        apiResponse.setMessage(exception.getMessage());
         return ResponseEntity.badRequest().body(apiResponse);
     }
 

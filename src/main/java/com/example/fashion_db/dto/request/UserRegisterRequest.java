@@ -26,5 +26,6 @@ public class UserRegisterRequest {
 
     @Past(message = "INVALID_DOB")
     LocalDate dob;
+
     boolean gender;
 }

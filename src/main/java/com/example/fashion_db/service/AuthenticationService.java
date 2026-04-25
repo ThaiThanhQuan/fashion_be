@@ -63,6 +63,7 @@ public class AuthenticationService {
 
     public UserResponse register(UserRegisterRequest request) {
         User user = userMapper.toUser(request);
+        user.setActive(true);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         HashSet<Role> roles = new HashSet<>();

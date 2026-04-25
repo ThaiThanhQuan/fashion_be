@@ -27,7 +27,7 @@ public class UserUpdateRequest {
 
     @Past(message = "INVALID_DOB")
     LocalDate dob;
-    boolean gender;
+    Boolean gender;
     List<String> roles;
-    boolean active;
+    Boolean active;
 }

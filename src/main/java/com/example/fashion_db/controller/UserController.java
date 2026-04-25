@@ -10,9 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,10 +40,9 @@ public class UserController {
     }
 
     @PutMapping("/myInfo")
-    @PreAuthorize("isAuthenticated()")
-    ApiResponse<UserResponse> updateMyInfo(@RequestBody @Valid UserUpdateRequest request,  @AuthenticationPrincipal Jwt jwt) {
+    ApiResponse<UserResponse> updateMyInfo(@RequestBody @Valid UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
-                .result(userService.updateMyInfo(request, jwt.getSubject()))
+                .result(userService.updateMyInfo(request))
                 .build();
     }
 
@@ -59,7 +55,6 @@ public class UserController {
     }
 
     @GetMapping("/myInfo")
-    @PreAuthorize("isAuthenticated()")
     ApiResponse<UserResponse> getMyInfo() {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.getMyInfo())
