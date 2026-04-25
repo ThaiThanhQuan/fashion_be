@@ -28,10 +28,12 @@ public enum ErrorCode {
 
     // Business Logic Errors
     USER_EXISTED(1001, "User already exists", HttpStatus.BAD_REQUEST),
+    PRODUCT_EXISTED(1001, "Product already exists", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXISTED(1003, "Role does not exist", HttpStatus.NOT_FOUND),
     USER_NOT_EXISTED(1004, "User does not exist", HttpStatus.NOT_FOUND),
+    CATEGORY_NOT_FOUND(1013, "Category does not exist", HttpStatus.NOT_FOUND),
+    PRODUCT_NOT_EXISTED(1013, "Product does not exist", HttpStatus.NOT_FOUND),
     ADDRESS_NOT_EXISTED(1013, "Address does not exist", HttpStatus.NOT_FOUND);
-
 
 
     private int code;

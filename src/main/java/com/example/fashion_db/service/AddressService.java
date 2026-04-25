@@ -58,7 +58,6 @@ public class AddressService {
         User user = userRepository.findByUsername(name)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        // Tìm đúng cái địa chỉ có ID đó VÀ thuộc về User đó
         Address address = addressRepository.findByIdAndUser(addressId, user)
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
 
@@ -68,16 +67,13 @@ public class AddressService {
     }
 
     public void deleteAddress(String addressId) {
-        // 1. Lấy thông tin User đang đăng nhập
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(name)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        // 3. KIỂM TRA: Địa chỉ này có thuộc về User này không?
         Address address = addressRepository.findByIdAndUser(addressId, user)
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
 
-        // 4. Nếu đúng chủ sở hữu thì mới xóa
         addressRepository.delete(address);
     }
 }
