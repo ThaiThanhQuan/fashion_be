@@ -147,4 +147,16 @@ public class ProductService {
                 .map(productMapper::toProductResponse));
     }
 
+    public PageResponse<ProductResponse> getRelatedProducts(String productId, int page, int size) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+
+        return PageResponse.of(productRepository
+                .findByCategory_IdAndIdNot(
+                        product.getCategory().getId(),
+                        productId,
+                        PageRequest.of(page, size))
+                .map(productMapper::toProductResponse));
+    }
+
 }

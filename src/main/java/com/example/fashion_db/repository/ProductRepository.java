@@ -25,4 +25,6 @@ public interface ProductRepository extends JpaRepository<Product, String> , JpaS
     Page<Product> findByFeatured(boolean featured, Pageable pageable);
     Page<Product> findByPriceBetween(Long minPrice, Long maxPrice, Pageable pageable);
 
+    Page<Product> findByCategory_IdAndIdNot(String categoryId, String productId, Pageable pageable);
+
 }

@@ -9,7 +9,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -132,6 +131,16 @@ public class ProductController {
                 .result(productService.filterProducts(
                         categoryId, active, featured,
                         minPrice, maxPrice, size, sortBy, page, pageSize))
+                .build();
+    }
+
+    @GetMapping("/{productId}/related")
+    public ApiResponse<PageResponse<ProductResponse>> getRelatedProducts(
+            @PathVariable String productId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .result(productService.getRelatedProducts(productId, page, size))
                 .build();
     }
 }
