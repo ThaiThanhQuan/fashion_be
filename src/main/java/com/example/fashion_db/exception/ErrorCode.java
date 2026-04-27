@@ -8,6 +8,10 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
+    // Cloudinary / File Errors
+    UPLOAD_FAILED(1022, "Upload image failed", HttpStatus.EXPECTATION_FAILED),
+    DELETE_IMAGE_FAILED(1023, "Delete image failed", HttpStatus.BAD_REQUEST),
+
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_KEY(1002, "Invalid message key", HttpStatus.BAD_REQUEST),
 
@@ -32,10 +36,12 @@ public enum ErrorCode {
     VARIANT_SIZE_EXISTED(1001, "Size already exists", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXISTED(1003, "Role does not exist", HttpStatus.NOT_FOUND),
     VARIANT_NOT_FOUND(1003, "Variant does not exist", HttpStatus.NOT_FOUND),
+    IMAGE_NOT_FOUND(1003, "Image does not exist", HttpStatus.NOT_FOUND),
     USER_NOT_EXISTED(1004, "User does not exist", HttpStatus.NOT_FOUND),
     CATEGORY_NOT_FOUND(1013, "Category does not exist", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_EXISTED(1013, "Product does not exist", HttpStatus.NOT_FOUND),
     ADDRESS_NOT_EXISTED(1013, "Address does not exist", HttpStatus.NOT_FOUND);
+
 
 
     private int code;
