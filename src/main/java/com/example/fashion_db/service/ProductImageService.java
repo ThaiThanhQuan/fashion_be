@@ -1,6 +1,9 @@
 package com.example.fashion_db.service;
 
+import com.example.fashion_db.dto.request.ProductImageRequest;
+import com.example.fashion_db.dto.response.PageResponse;
 import com.example.fashion_db.dto.response.ProductImageResponse;
+import com.example.fashion_db.entity.Product;
 import com.example.fashion_db.entity.ProductImage;
 import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
@@ -11,6 +14,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,26 +32,45 @@ public class ProductImageService {
     ProductImageMapper productImageMapper;
     CloudinaryService cloudinaryService;
 
-    public ProductImageResponse createProductImage(String productId, MultipartFile file) {
-        // 1. Upload lên Cloudinary → lấy URL
-        String imageUrl = cloudinaryService.uploadImage(file);
+    public List<ProductImageResponse> createProductImages(ProductImageRequest request) {
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
-        // 2. Lưu URL vào DB
-        ProductImage productImage = ProductImage.builder()
-                .imagePath(imageUrl)
-                .product(productRepository.findById(productId)
-                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED)))
-                .build();
-
-        return productImageMapper.toProductImageResponse(productImageRepository.save(productImage));
+        return request.getFiles().stream()
+                .map(file -> {
+                    String imageUrl = cloudinaryService.uploadImage(file);
+                    ProductImage productImage = ProductImage.builder()
+                            .imagePath(imageUrl)
+                            .thumbnail(false)
+                            .product(product)
+                            .build();
+                    return productImageMapper.toProductImageResponse(productImageRepository.save(productImage));
+                })
+                .toList();
     }
 
-//    public List<ProductImageResponse> getImagesByProduct(String productId) {
-//        return productImageRepository.findByProduct_Id(productId)
-//                .stream()
-//                .map(productImageMapper::toProductImageResponse)
-//                .toList();
-//    }
+    public ProductImageResponse setThumbnail(String imageId) {
+        ProductImage image = productImageRepository.findById(imageId)
+                .orElseThrow(() -> new AppException(ErrorCode.IMAGE_NOT_FOUND));
+
+        // Bỏ thumbnail cũ
+        productImageRepository.findByProduct_IdAndThumbnailTrue(image.getProduct().getId())
+                .ifPresent(old -> {
+                    old.setThumbnail(false);
+                    productImageRepository.save(old);
+                });
+
+        // Set thumbnail mới
+        image.setThumbnail(true);
+        return productImageMapper.toProductImageResponse(productImageRepository.save(image));
+    }
+
+    public PageResponse<ProductImageResponse> getImagesByProduct(String productId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return PageResponse.of(productImageRepository.findByProduct_Id(productId, pageable)
+                        .map(productImageMapper::toProductImageResponse)
+                    );
+    }
 
     public void deleteProductImage(String imageId) {
         ProductImage productImage = productImageRepository.findById(imageId)

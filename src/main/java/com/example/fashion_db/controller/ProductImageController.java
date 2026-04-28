@@ -1,6 +1,8 @@
 package com.example.fashion_db.controller;
 
+import com.example.fashion_db.dto.request.ProductImageRequest;
 import com.example.fashion_db.dto.response.ApiResponse;
+import com.example.fashion_db.dto.response.PageResponse;
 import com.example.fashion_db.dto.response.ProductImageResponse;
 import com.example.fashion_db.service.ProductImageService;
 import lombok.AccessLevel;
@@ -12,8 +14,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/product-images")
+@RequestMapping("/product_images")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
@@ -21,24 +25,33 @@ public class ProductImageController {
 
     ProductImageService productImageService;
 
-    // Dùng MultipartFile thay vì @RequestBody
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<ProductImageResponse> createProductImage(
-            @RequestParam String productId,
-            @RequestParam("file") MultipartFile file) {
-        return ApiResponse.<ProductImageResponse>builder()
-                .result(productImageService.createProductImage(productId, file))
+    public ApiResponse<List<ProductImageResponse>> createProductImage(
+            @ModelAttribute ProductImageRequest request) {
+        return ApiResponse.<List<ProductImageResponse>>builder()
+                .result(productImageService.createProductImages(request))
                 .build();
     }
 
-//    @GetMapping("/product/{productId}")
-//    public ApiResponse<List<ProductImageResponse>> getImagesByProduct(
-//            @PathVariable String productId) {
-//        return ApiResponse.<List<ProductImageResponse>>builder()
-//                .result(productImageService.getImagesByProduct(productId))
-//                .build();
-//    }
+    @PatchMapping("/{imageId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<ProductImageResponse> setThumbnail(@PathVariable String imageId) {
+        return ApiResponse.<ProductImageResponse>builder()
+                .result(productImageService.setThumbnail(imageId))
+                .build();
+    }
+
+    @GetMapping("/{productId}")
+    public ApiResponse<PageResponse<ProductImageResponse>> getImagesByProduct(
+            @PathVariable String productId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ApiResponse.<PageResponse<ProductImageResponse>>builder()
+                .result(productImageService.getImagesByProduct(productId, page, size))
+                .build();
+    }
 
     @DeleteMapping("/{imageId}")
     @PreAuthorize("hasRole('ADMIN')")
