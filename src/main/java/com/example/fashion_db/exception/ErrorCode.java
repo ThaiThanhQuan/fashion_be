@@ -35,7 +35,9 @@ public enum ErrorCode {
     WISHLIST_EXISTED(1001, "Wishlist already exists", HttpStatus.BAD_REQUEST),
     PRODUCT_EXISTED(1001, "Product already exists", HttpStatus.BAD_REQUEST),
     VARIANT_SIZE_EXISTED(1001, "Size already exists", HttpStatus.BAD_REQUEST),
+    SEASON_EXISTED(1001, "Season already existed", HttpStatus.BAD_REQUEST),
 
+    SEASON_NOT_FOUND(1003, "Season not found", HttpStatus.NOT_FOUND),
     VARIANT_NOT_FOUND(1003, "Variant does not exist", HttpStatus.NOT_FOUND),
     IMAGE_NOT_FOUND(1003, "Image does not exist", HttpStatus.NOT_FOUND),
     USER_NOT_EXISTED(1004, "User does not exist", HttpStatus.NOT_FOUND),
