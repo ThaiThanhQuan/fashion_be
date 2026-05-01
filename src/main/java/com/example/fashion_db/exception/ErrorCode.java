@@ -36,7 +36,9 @@ public enum ErrorCode {
     PRODUCT_EXISTED(1001, "Product already exists", HttpStatus.BAD_REQUEST),
     VARIANT_SIZE_EXISTED(1001, "Size already exists", HttpStatus.BAD_REQUEST),
     SEASON_EXISTED(1001, "Season already existed", HttpStatus.BAD_REQUEST),
+    CATEGORY_COLLECTION_EXISTED(400, "Category collection already existed", HttpStatus.BAD_REQUEST),
 
+    CATEGORY_COLLECTION_NOT_FOUND(404, "Category collection not found", HttpStatus.NOT_FOUND),
     SEASON_NOT_FOUND(1003, "Season not found", HttpStatus.NOT_FOUND),
     VARIANT_NOT_FOUND(1003, "Variant does not exist", HttpStatus.NOT_FOUND),
     IMAGE_NOT_FOUND(1003, "Image does not exist", HttpStatus.NOT_FOUND),
