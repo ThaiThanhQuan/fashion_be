@@ -38,7 +38,9 @@ public enum ErrorCode {
     SEASON_EXISTED(1001, "Season already existed", HttpStatus.BAD_REQUEST),
     CATEGORY_COLLECTION_EXISTED(400, "Category collection already existed", HttpStatus.BAD_REQUEST),
     ARTIST_EXISTED(400, "Artist already existed", HttpStatus.BAD_REQUEST),
+    COLLECTION_EXISTED(400, "Collection already existed", HttpStatus.BAD_REQUEST),
 
+    COLLECTION_NOT_FOUND(404, "Collection not found", HttpStatus.NOT_FOUND),
     ARTIST_NOT_FOUND(404, "Artist not found", HttpStatus.NOT_FOUND),
     CATEGORY_COLLECTION_NOT_FOUND(404, "Category collection not found", HttpStatus.NOT_FOUND),
     SEASON_NOT_FOUND(1003, "Season not found", HttpStatus.NOT_FOUND),
