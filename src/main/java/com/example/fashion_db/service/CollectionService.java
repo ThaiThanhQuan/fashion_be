@@ -11,12 +11,15 @@ import com.example.fashion_db.repository.ArtistRepository;
 import com.example.fashion_db.repository.CategoryCollectionRepository;
 import com.example.fashion_db.repository.CollectionRepository;
 import com.example.fashion_db.repository.SeasonRepository;
+import com.example.fashion_db.specification.CollectionSpecification;
 import com.example.fashion_db.utils.SlugUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -78,6 +81,11 @@ public class CollectionService {
                 .map(collectionMapper::toCollectionResponse));
     }
 
+    public PageResponse<CollectionResponse> getCollectionsByYear(String year, int page, int size) {
+        return PageResponse.of(collectionRepository.findByYear(year, PageRequest.of(page, size))
+                .map(collectionMapper::toCollectionResponse));
+    }
+
     public CollectionResponse updateCollection(String collectionId, CollectionRequest request) {
         Collection collection = collectionRepository.findById(collectionId)
                 .orElseThrow(() -> new AppException(ErrorCode.COLLECTION_NOT_FOUND));
@@ -103,6 +111,31 @@ public class CollectionService {
             cloudinaryService.deleteImage(collection.getThumbnail());
 
         collectionRepository.deleteById(collectionId);
+    }
+
+    public PageResponse<CollectionResponse> filterCollections(
+            String seasonId,
+            String categoryId,
+            String artistId,
+            String year,
+            String sortBy,
+            int page,
+            int size) {
+
+        Sort sort = switch (sortBy != null ? sortBy : "") {
+            case "newest" -> Sort.by("year").descending();
+            case "oldest" -> Sort.by("year").ascending();
+            default       -> Sort.unsorted();
+        };
+
+        Specification<Collection> spec = Specification
+                .where(CollectionSpecification.hasSeason(seasonId))
+                .and(CollectionSpecification.hasCategory(categoryId))
+                .and(CollectionSpecification.hasArtist(artistId))
+                .and(CollectionSpecification.hasYear(year));
+
+        return PageResponse.of(collectionRepository.findAll(spec, PageRequest.of(page, size, sort))
+                .map(collectionMapper::toCollectionResponse));
     }
 
     // Set relations helper

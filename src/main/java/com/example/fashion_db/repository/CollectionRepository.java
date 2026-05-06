@@ -17,4 +17,5 @@ public interface CollectionRepository extends JpaRepository<Collection, String>,
     Page<Collection> findBySeason_Id(String seasonId, Pageable pageable);
     Page<Collection> findByCategoryCollection_Id(String categoryCollectionId, Pageable pageable);
     Page<Collection> findByArtist_Id(String artistId, Pageable pageable);
+    Page<Collection> findByYear(String year, Pageable pageable);
 }
