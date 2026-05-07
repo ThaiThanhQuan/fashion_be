@@ -6,9 +6,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ProductVariantsRepository extends JpaRepository<ProductVariants, String> {
     Page<ProductVariants> findByProduct_Id(String productId, Pageable pageable);
     boolean existsByProduct_IdAndSizeAndIdNot(String productId, String size, String id);
     Page<ProductVariants> findBySize(String size, Pageable pageable);
+    Optional<ProductVariants> findByProduct_IdAndSize(String productId, String size);
+
 }

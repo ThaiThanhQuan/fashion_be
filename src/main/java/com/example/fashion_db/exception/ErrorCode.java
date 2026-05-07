@@ -40,7 +40,12 @@ public enum ErrorCode {
     ARTIST_EXISTED(400, "Artist already existed", HttpStatus.BAD_REQUEST),
     COLLECTION_EXISTED(400, "Collection already existed", HttpStatus.BAD_REQUEST),
     COLLECTION_PRODUCT_EXISTED(400, "Collection product already existed", HttpStatus.BAD_REQUEST),
+    CANNOT_CANCEL_ORDER(400, "Cannot cancel order that is not pending", HttpStatus.BAD_REQUEST),
+    SERVICE_EXISTED(400, "Service already existed", HttpStatus.BAD_REQUEST),
 
+    HIGHLIGHT_NOT_FOUND(404, "Highlight not found", HttpStatus.NOT_FOUND),
+    SERVICE_NOT_FOUND(404, "Service not found", HttpStatus.NOT_FOUND),
+    ORDER_NOT_FOUND(404, "Order not found", HttpStatus.NOT_FOUND),
     COLLECTION_NOT_FOUND(404, "Collection not found", HttpStatus.NOT_FOUND),
     ARTIST_NOT_FOUND(404, "Artist not found", HttpStatus.NOT_FOUND),
     CATEGORY_COLLECTION_NOT_FOUND(404, "Category collection not found", HttpStatus.NOT_FOUND),
@@ -53,9 +58,9 @@ public enum ErrorCode {
 
     ROLE_NOT_EXISTED(1003, "Role does not exist", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_EXISTED(1013, "Product does not exist", HttpStatus.NOT_FOUND),
-    ADDRESS_NOT_EXISTED(1013, "Address does not exist", HttpStatus.NOT_FOUND);
+    ADDRESS_NOT_EXISTED(1013, "Address does not exist", HttpStatus.NOT_FOUND),
 
-
+    OUT_OF_STOCK(409, "Product out of stock", HttpStatus.CONFLICT);
 
     private int code;
     private String message;
