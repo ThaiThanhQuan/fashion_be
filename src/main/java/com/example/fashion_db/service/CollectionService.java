@@ -4,13 +4,11 @@ import com.example.fashion_db.dto.request.CollectionRequest;
 import com.example.fashion_db.dto.response.CollectionResponse;
 import com.example.fashion_db.dto.response.PageResponse;
 import com.example.fashion_db.entity.Collection;
+import com.example.fashion_db.entity.Product;
 import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
 import com.example.fashion_db.mapper.CollectionMapper;
-import com.example.fashion_db.repository.ArtistRepository;
-import com.example.fashion_db.repository.CategoryCollectionRepository;
-import com.example.fashion_db.repository.CollectionRepository;
-import com.example.fashion_db.repository.SeasonRepository;
+import com.example.fashion_db.repository.*;
 import com.example.fashion_db.specification.CollectionSpecification;
 import com.example.fashion_db.utils.SlugUtils;
 import lombok.AccessLevel;
@@ -22,6 +20,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 public class CollectionService {
 
     CollectionRepository collectionRepository;
+    ProductRepository productRepository;
     SeasonRepository seasonRepository;
     CategoryCollectionRepository categoryCollectionRepository;
     ArtistRepository artistRepository;
@@ -42,6 +43,7 @@ public class CollectionService {
         Collection collection = collectionMapper.toCollection(request);
         collection.setSlug(SlugUtils.generateSlug(request.getTitle()));
         setRelations(collection, request);
+        setProducts(collection, request.getProductIds());
 
         if (request.getThumbnail() != null)
             collection.setThumbnail(cloudinaryService.uploadImage(request.getThumbnail()));
@@ -93,6 +95,7 @@ public class CollectionService {
         collectionMapper.updateCollection(collection, request);
         collection.setSlug(SlugUtils.generateSlug(request.getTitle()));
         setRelations(collection, request);
+        setProducts(collection, request.getProductIds());
 
         if (request.getThumbnail() != null) {
             if (collection.getThumbnail() != null)
@@ -111,6 +114,31 @@ public class CollectionService {
             cloudinaryService.deleteImage(collection.getThumbnail());
 
         collectionRepository.deleteById(collectionId);
+    }
+
+    public CollectionResponse addProductToCollection(String collectionId, String productId) {
+        Collection collection = collectionRepository.findById(collectionId)
+                .orElseThrow(() -> new AppException(ErrorCode.COLLECTION_NOT_FOUND));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+
+        if (collection.getProducts().contains(product))
+            throw new AppException(ErrorCode.COLLECTION_PRODUCT_EXISTED);
+
+        collection.getProducts().add(product);
+        return collectionMapper.toCollectionResponse(collectionRepository.save(collection));
+    }
+
+    public CollectionResponse removeProductFromCollection(String collectionId, String productId) {
+        Collection collection = collectionRepository.findById(collectionId)
+                .orElseThrow(() -> new AppException(ErrorCode.COLLECTION_NOT_FOUND));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+
+        collection.getProducts().remove(product);
+        return collectionMapper.toCollectionResponse(collectionRepository.save(collection));
     }
 
     public PageResponse<CollectionResponse> filterCollections(
@@ -149,4 +177,12 @@ public class CollectionService {
         collection.setArtist(artistRepository.findById(request.getArtistId())
                 .orElseThrow(() -> new AppException(ErrorCode.ARTIST_NOT_FOUND)));
     }
+
+    private void setProducts(Collection collection, List<String> productIds) {
+        if (productIds != null && !productIds.isEmpty()) {
+            List<Product> products = productRepository.findAllById(productIds);
+            collection.setProducts(products);
+        }
+    }
+
 }

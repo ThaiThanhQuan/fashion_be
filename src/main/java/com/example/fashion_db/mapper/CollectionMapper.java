@@ -14,6 +14,7 @@ public interface CollectionMapper {
     @Mapping(target = "artist", ignore = true)
     @Mapping(target = "slug", ignore = true)
     @Mapping(target = "thumbnail", ignore = true)
+    @Mapping(target = "products", ignore = true)
     Collection toCollection(CollectionRequest request);
 
     @Mapping(target = "seasonId", source = "season.id")
@@ -26,5 +27,6 @@ public interface CollectionMapper {
     @Mapping(target = "artist", ignore = true)
     @Mapping(target = "slug", ignore = true)
     @Mapping(target = "thumbnail", ignore = true)
+    @Mapping(target = "products", ignore = true)
     void updateCollection(@MappingTarget Collection collection, CollectionRequest request);
 }

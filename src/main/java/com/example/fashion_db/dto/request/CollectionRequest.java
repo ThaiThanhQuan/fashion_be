@@ -4,6 +4,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,4 +21,5 @@ public class CollectionRequest {
     String categoryCollectionId;
     String artistId;
     MultipartFile thumbnail;
+    List<String> productIds;
 }

@@ -39,6 +39,7 @@ public enum ErrorCode {
     CATEGORY_COLLECTION_EXISTED(400, "Category collection already existed", HttpStatus.BAD_REQUEST),
     ARTIST_EXISTED(400, "Artist already existed", HttpStatus.BAD_REQUEST),
     COLLECTION_EXISTED(400, "Collection already existed", HttpStatus.BAD_REQUEST),
+    COLLECTION_PRODUCT_EXISTED(400, "Collection product already existed", HttpStatus.BAD_REQUEST),
 
     COLLECTION_NOT_FOUND(404, "Collection not found", HttpStatus.NOT_FOUND),
     ARTIST_NOT_FOUND(404, "Artist not found", HttpStatus.NOT_FOUND),

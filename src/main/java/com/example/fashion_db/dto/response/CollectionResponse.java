@@ -3,6 +3,8 @@ package com.example.fashion_db.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,4 +22,5 @@ public class CollectionResponse {
     String seasonId;
     String categoryCollectionId;
     String artistId;
+    List<ProductResponse> products;
 }

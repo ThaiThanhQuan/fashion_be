@@ -112,6 +112,26 @@ public class CollectionController {
                 .build();
     }
 
+    @PostMapping("/{collectionId}/products/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<CollectionResponse> addProductToCollection(
+            @PathVariable String collectionId,
+            @PathVariable String productId) {
+        return ApiResponse.<CollectionResponse>builder()
+                .result(collectionService.addProductToCollection(collectionId, productId))
+                .build();
+    }
+
+    @DeleteMapping("/{collectionId}/products/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<CollectionResponse> removeProductFromCollection(
+            @PathVariable String collectionId,
+            @PathVariable String productId) {
+        return ApiResponse.<CollectionResponse>builder()
+                .result(collectionService.removeProductFromCollection(collectionId, productId))
+                .build();
+    }
+
     @GetMapping("/filters")
     public ApiResponse<PageResponse<CollectionResponse>> filterCollections(
             @RequestParam(required = false) String seasonId,

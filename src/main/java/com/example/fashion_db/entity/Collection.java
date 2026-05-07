@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "collections")
 @Data
@@ -39,4 +42,13 @@ public class Collection {
     @ManyToOne
     @JoinColumn(name = "artist_id")
     Artist artist;
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "collection_products",           // tên bảng trung gian
+            joinColumns = @JoinColumn(name = "collection_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    List<Product> products = new ArrayList<>();
 }
