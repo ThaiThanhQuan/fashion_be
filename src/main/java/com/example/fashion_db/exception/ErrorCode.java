@@ -55,6 +55,10 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1004, "User does not exist", HttpStatus.NOT_FOUND),
     CATEGORY_NOT_FOUND(1013, "Category does not exist", HttpStatus.NOT_FOUND),
     WISHLIST_NOT_FOUND(1013, "Wishlist does not exist", HttpStatus.NOT_FOUND),
+    PRICING_NOT_FOUND(404, "Pricing not found", HttpStatus.NOT_FOUND),
+    WORKFLOW_NOT_FOUND(8005, "Workflow not found", HttpStatus.NOT_FOUND),
+    TIMELINE_NOT_FOUND(8006, "Timeline not found", HttpStatus.NOT_FOUND),
+
 
     ROLE_NOT_EXISTED(1003, "Role does not exist", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_EXISTED(1013, "Product does not exist", HttpStatus.NOT_FOUND),
