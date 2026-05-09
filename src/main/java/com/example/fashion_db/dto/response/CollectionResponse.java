@@ -19,8 +19,8 @@ public class CollectionResponse {
     String designIdeas;
     String description;
     String thumbnail;
-    String seasonId;
-    String categoryCollectionId;
-    String artistId;
+    SeasonResponse season;
+    CategoryCollectionResponse categoryCollection;
+    ArtistResponse artist;
     List<ProductResponse> products;
 }

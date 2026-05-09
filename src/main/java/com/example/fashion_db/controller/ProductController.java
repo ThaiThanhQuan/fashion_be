@@ -30,6 +30,16 @@ public class ProductController {
                 .build();
     }
 
+    @GetMapping
+    public ApiResponse<PageResponse<ProductResponse>> getAllProduct(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .result(productService.getAllProduct(page,size))
+                .build();
+    }
+
     @GetMapping("/{productId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<ProductResponse> getProductById(@PathVariable String productId) {
@@ -116,7 +126,7 @@ public class ProductController {
                 .build();
     }
 
-    @GetMapping
+    @GetMapping("/filter")
     public ApiResponse<PageResponse<ProductResponse>> filterProducts(
             @RequestParam(required = false) String categoryId,
             @RequestParam(required = false) Boolean active,

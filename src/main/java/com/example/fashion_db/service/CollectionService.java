@@ -52,7 +52,8 @@ public class CollectionService {
     }
 
     public PageResponse<CollectionResponse> getAllCollections(int page, int size) {
-        return PageResponse.of(collectionRepository.findAll(PageRequest.of(page, size))
+        return PageResponse.of(collectionRepository
+                .findAllByOrderByCreatedAtDesc(PageRequest.of(page, size))
                 .map(collectionMapper::toCollectionResponse));
     }
 

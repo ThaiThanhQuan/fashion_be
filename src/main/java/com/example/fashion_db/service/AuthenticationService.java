@@ -91,10 +91,12 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        var token = generateToken(user);
+        var token = generateToken(user, VALID_DURATION);
+        var refreshToken = generateToken(user, REFRESH_DURATION);
 
         return AuthenticationResponse.builder()
                 .token(token)
+                .refreshToken(refreshToken)
                 .authenticated(authenticated)
                 .build();
     }
@@ -144,7 +146,7 @@ public class AuthenticationService {
         InvalidatedToken invalidatedToken = InvalidatedToken.builder().jwtId(jti).expiryTime(expiryTime).user(user).build();
         invalidatedTokenRepository.save(invalidatedToken);
 
-        var token = generateToken(user);
+        var token = generateToken(user, VALID_DURATION);
 
         return AuthenticationResponse.builder().token(token).authenticated(true).build();
     }
@@ -171,7 +173,7 @@ public class AuthenticationService {
 
     }
 
-    private String generateToken(User user) {
+    private String generateToken(User user, long duration) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
@@ -179,7 +181,7 @@ public class AuthenticationService {
                 .issuer("fashion.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
+                        Instant.now().plus(duration, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
                 .claim("userId", user.getId())

@@ -21,7 +21,7 @@ public class ProductResponse {
     Boolean active;
     Boolean featured;
     LocalDateTime created_at;
-
+    String thumbnail;
 
     String category_product_id;
 }

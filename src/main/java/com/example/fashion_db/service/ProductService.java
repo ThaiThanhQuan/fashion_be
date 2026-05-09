@@ -8,6 +8,7 @@ import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
 import com.example.fashion_db.mapper.ProductMapper;
 import com.example.fashion_db.repository.CategoriesProductRepository;
+import com.example.fashion_db.repository.ProductImageRepository;
 import com.example.fashion_db.repository.ProductRepository;
 import com.example.fashion_db.specification.ProductSpecification;
 import com.example.fashion_db.utils.SlugUtils;
@@ -33,6 +34,7 @@ public class ProductService {
 
     ProductRepository productRepository;
     CategoriesProductRepository categoriesProductRepository;
+    ProductImageRepository productImageRepository;
     ProductMapper productMapper;
 
     public ProductResponse createProduct(ProductRequest request) {
@@ -48,15 +50,13 @@ public class ProductService {
     }
 
     public PageResponse<ProductResponse> getAllProduct(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return PageResponse.of(productRepository.findAll(pageable)
-                .map(productMapper::toProductResponse));
+        return PageResponse.of(productRepository.findAll(PageRequest.of(page, size))
+                .map(this::mapWithThumbnail));
     }
 
     public ProductResponse getProductById(String productId) {
-        return productMapper.toProductResponse(
-                productRepository.findById(productId)
-                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED)));
+        return mapWithThumbnail(productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED)));
     }
 
     public ProductResponse updateProduct(String productId, ProductRequest request) {
@@ -88,11 +88,10 @@ public class ProductService {
     }
 
     public ProductResponse getProductBySlug(String slug) {
-        return productMapper.toProductResponse(
-                productRepository.findBySlug(slug)
-                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED))
-        );
+        return mapWithThumbnail(productRepository.findBySlug(slug)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED)));
     }
+
 
     public PageResponse<ProductResponse> getProductsSorted(String sortBy, int page, int size) {
         Sort sort = switch (sortBy) {
@@ -102,15 +101,13 @@ public class ProductService {
             default           -> Sort.unsorted();
         };
 
-        Pageable pageable = PageRequest.of(page, size, sort);
-        return PageResponse.of(productRepository.findAll(pageable)
-                .map(productMapper::toProductResponse));
+        return PageResponse.of(productRepository.findAll(PageRequest.of(page, size, sort))
+                .map(this::mapWithThumbnail));
     }
 
     public PageResponse<ProductResponse> getFeaturedProducts(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return PageResponse.of(productRepository.findByFeatured(true, pageable)
-                        .map(productMapper::toProductResponse));
+        return PageResponse.of(productRepository.findByFeatured(true, PageRequest.of(page, size))
+                .map(this::mapWithThumbnail));
     }
 
     public PageResponse<ProductResponse> getProductsByPriceRange(Long minPrice, Long maxPrice, int page, int size) {
@@ -119,15 +116,9 @@ public class ProductService {
     }
 
     public PageResponse<ProductResponse> filterProducts(
-            String categoryId,
-            Boolean active,
-            Boolean featured,
-            Long minPrice,
-            Long maxPrice,
-            String size,
-            String sortBy,
-            int page,
-            int pageSize) {
+            String categoryId, Boolean active, Boolean featured,
+            Long minPrice, Long maxPrice, String size,
+            String sortBy, int page, int pageSize) {
 
         Sort sort = switch (sortBy != null ? sortBy : "") {
             case "price_asc"  -> Sort.by("price").ascending();
@@ -144,7 +135,7 @@ public class ProductService {
                 .and(ProductSpecification.hasSize(size));
 
         return PageResponse.of(productRepository.findAll(spec, PageRequest.of(page, pageSize, sort))
-                .map(productMapper::toProductResponse));
+                .map(this::mapWithThumbnail));
     }
 
     public PageResponse<ProductResponse> getRelatedProducts(String productId, int page, int size) {
@@ -152,11 +143,16 @@ public class ProductService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
         return PageResponse.of(productRepository
-                .findByCategory_IdAndIdNot(
-                        product.getCategory().getId(),
-                        productId,
-                        PageRequest.of(page, size))
-                .map(productMapper::toProductResponse));
+                .findByCategory_IdAndIdNot(product.getCategory().getId(), productId, PageRequest.of(page, size))
+                .map(this::mapWithThumbnail));
+    }
+
+    private ProductResponse mapWithThumbnail(Product product) {
+        ProductResponse response = productMapper.toProductResponse(product);
+        productImageRepository
+                .findByProduct_IdAndThumbnailTrue(product.getId())
+                .ifPresent(image -> response.setThumbnail(image.getImagePath()));
+        return response;
     }
 
 }

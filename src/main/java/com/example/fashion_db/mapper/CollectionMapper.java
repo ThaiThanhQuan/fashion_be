@@ -7,7 +7,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {
+        SeasonMapper.class,
+        CategoryCollectionMapper.class,
+        ArtistMapper.class,
+        ProductMapper.class
+})
 public interface CollectionMapper {
     @Mapping(target = "season", ignore = true)
     @Mapping(target = "categoryCollection", ignore = true)
@@ -17,9 +22,6 @@ public interface CollectionMapper {
     @Mapping(target = "products", ignore = true)
     Collection toCollection(CollectionRequest request);
 
-    @Mapping(target = "seasonId", source = "season.id")
-    @Mapping(target = "categoryCollectionId", source = "categoryCollection.id")
-    @Mapping(target = "artistId", source = "artist.id")
     CollectionResponse toCollectionResponse(Collection collection);
 
     @Mapping(target = "season", ignore = true)

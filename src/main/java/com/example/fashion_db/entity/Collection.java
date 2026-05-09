@@ -3,7 +3,9 @@ package com.example.fashion_db.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,4 +53,8 @@ public class Collection {
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     List<Product> products = new ArrayList<>();
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    LocalDateTime createdAt;
 }

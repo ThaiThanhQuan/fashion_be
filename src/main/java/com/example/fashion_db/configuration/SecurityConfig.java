@@ -42,6 +42,12 @@ public class SecurityConfig {
                                                         "/auth/introspec",
                                                         "/auth/logout"
                                         ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/product/feature").permitAll()
+                .requestMatchers(HttpMethod.GET, "/product").permitAll()
+                .requestMatchers(HttpMethod.GET, "/collections").permitAll()
+                .requestMatchers(HttpMethod.GET, "/services").permitAll()
+
+
                         .anyRequest()
                         .authenticated());
 

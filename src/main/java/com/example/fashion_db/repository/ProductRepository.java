@@ -18,10 +18,6 @@ public interface ProductRepository extends JpaRepository<Product, String> , JpaS
     Page<Product> findByActive(boolean active, Pageable pageable);
     Optional<Product> findBySlug(String slug);
 
-    List<Product> findAllByOrderByCreatedAtDesc();
-    List<Product> findAllByOrderByPriceAsc();
-    List<Product> findAllByOrderByPriceDesc();
-
     Page<Product> findByFeatured(boolean featured, Pageable pageable);
     Page<Product> findByPriceBetween(Long minPrice, Long maxPrice, Pageable pageable);
 

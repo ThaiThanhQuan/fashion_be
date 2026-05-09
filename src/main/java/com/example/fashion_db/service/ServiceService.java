@@ -43,7 +43,8 @@ public class ServiceService {
     }
 
     public PageResponse<ServiceResponse> getAllServices(int page, int size) {
-        return PageResponse.of(serviceRepository.findAll(PageRequest.of(page, size))
+        return PageResponse.of(serviceRepository
+                .findAllByOrderByCreatedAtDesc(PageRequest.of(page, size))
                 .map(serviceMapper::toServiceResponse));
     }
 

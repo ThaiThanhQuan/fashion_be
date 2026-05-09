@@ -3,6 +3,9 @@ package com.example.fashion_db.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "service")
@@ -35,4 +38,8 @@ public class Service {
     @ManyToOne
     @JoinColumn(name = "artist_id")
     Artist artist;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    LocalDateTime createdAt;
 }
