@@ -89,7 +89,6 @@ public class ProductController {
     }
 
     @GetMapping("/slug/{slug}")
-    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<ProductResponse> getProductBySlug(@PathVariable String slug) {
         return ApiResponse.<ProductResponse>builder()
                 .result(productService.getProductBySlug(slug))

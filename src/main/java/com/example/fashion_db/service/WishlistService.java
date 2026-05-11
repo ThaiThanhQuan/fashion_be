@@ -1,7 +1,7 @@
 package com.example.fashion_db.service;
 
 import com.example.fashion_db.dto.request.WishlistRequest;
-import com.example.fashion_db.dto.response.PageResponse;
+import com.example.fashion_db.dto.response.ProductResponse;
 import com.example.fashion_db.dto.response.WishlistResponse;
 import com.example.fashion_db.entity.Wishlist;
 import com.example.fashion_db.exception.AppException;
@@ -15,10 +15,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,7 @@ public class WishlistService {
 
     WishlistRepository wishlistRepository;
     ProductRepository productRepository;
+    ProductService productService;
     UserRepository userRepository;
     WishlistMapper wishlistMapper;
 
@@ -49,13 +51,22 @@ public class WishlistService {
                         .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED)))
                 .build();
 
-        return wishlistMapper.toWishlistResponse(wishlistRepository.save(wishlist));
+        WishlistResponse response = wishlistMapper.toWishlistResponse(wishlistRepository.save(wishlist));
+        response.setProduct(productService.mapProductWithImages(wishlist.getProduct()));
+        return response;
     }
 
-    public PageResponse<WishlistResponse> getMyWishlist(int page, int size) {
+    public List<WishlistResponse> getAllMyWishlist() {
         String userId = getCurrentUserId();
-        return PageResponse.of(wishlistRepository.findByUser_Id(userId, PageRequest.of(page, size))
-                .map(wishlistMapper::toWishlistResponse));
+        return wishlistRepository.findByUser_Id(userId)
+                .stream()
+                .map(wishlist -> {
+                    WishlistResponse response = wishlistMapper.toWishlistResponse(wishlist);
+                    ProductResponse product = productService.mapProductWithImages(wishlist.getProduct());
+                    response.setProduct(product);
+                    return response;
+                })
+                .toList();
     }
 
     @Transactional

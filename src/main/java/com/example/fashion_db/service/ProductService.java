@@ -4,6 +4,7 @@ import com.example.fashion_db.dto.request.ProductRequest;
 import com.example.fashion_db.dto.response.PageResponse;
 import com.example.fashion_db.dto.response.ProductResponse;
 import com.example.fashion_db.entity.Product;
+import com.example.fashion_db.entity.ProductImage;
 import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
 import com.example.fashion_db.mapper.ProductMapper;
@@ -51,11 +52,11 @@ public class ProductService {
 
     public PageResponse<ProductResponse> getAllProduct(int page, int size) {
         return PageResponse.of(productRepository.findAll(PageRequest.of(page, size))
-                .map(this::mapWithThumbnail));
+                .map(this::mapProductWithImages));
     }
 
     public ProductResponse getProductById(String productId) {
-        return mapWithThumbnail(productRepository.findById(productId)
+        return mapProductWithImages(productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED)));
     }
 
@@ -88,7 +89,7 @@ public class ProductService {
     }
 
     public ProductResponse getProductBySlug(String slug) {
-        return mapWithThumbnail(productRepository.findBySlug(slug)
+        return mapProductWithImages(productRepository.findBySlug(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED)));
     }
 
@@ -102,12 +103,12 @@ public class ProductService {
         };
 
         return PageResponse.of(productRepository.findAll(PageRequest.of(page, size, sort))
-                .map(this::mapWithThumbnail));
+                .map(this::mapProductWithImages));
     }
 
     public PageResponse<ProductResponse> getFeaturedProducts(int page, int size) {
         return PageResponse.of(productRepository.findByFeatured(true, PageRequest.of(page, size))
-                .map(this::mapWithThumbnail));
+                .map(this::mapProductWithImages));
     }
 
     public PageResponse<ProductResponse> getProductsByPriceRange(Long minPrice, Long maxPrice, int page, int size) {
@@ -135,7 +136,7 @@ public class ProductService {
                 .and(ProductSpecification.hasSize(size));
 
         return PageResponse.of(productRepository.findAll(spec, PageRequest.of(page, pageSize, sort))
-                .map(this::mapWithThumbnail));
+                .map(this::mapProductWithImages));
     }
 
     public PageResponse<ProductResponse> getRelatedProducts(String productId, int page, int size) {
@@ -144,14 +145,25 @@ public class ProductService {
 
         return PageResponse.of(productRepository
                 .findByCategory_IdAndIdNot(product.getCategory().getId(), productId, PageRequest.of(page, size))
-                .map(this::mapWithThumbnail));
+                .map(this::mapProductWithImages));
     }
 
-    private ProductResponse mapWithThumbnail(Product product) {
+    public ProductResponse mapProductWithImages(Product product) {
         ProductResponse response = productMapper.toProductResponse(product);
-        productImageRepository
-                .findByProduct_IdAndThumbnailTrue(product.getId())
+
+        List<ProductImage> allImages = productImageRepository.findByProduct_Id(product.getId());
+
+        // Thumbnail
+        allImages.stream()
+                .filter(ProductImage::isThumbnail)
+                .findFirst()
                 .ifPresent(image -> response.setThumbnail(image.getImagePath()));
+
+        // Tất cả ảnh kể cả thumbnail
+        response.setImages(allImages.stream()
+                .map(ProductImage::getImagePath)
+                .toList());
+
         return response;
     }
 

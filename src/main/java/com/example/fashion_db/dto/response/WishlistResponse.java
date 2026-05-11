@@ -11,5 +11,5 @@ import lombok.experimental.FieldDefaults;
 public class WishlistResponse {
     String id;
     String userId;
-    String productId;
+    ProductResponse product;
 }

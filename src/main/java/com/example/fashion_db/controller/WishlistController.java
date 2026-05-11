@@ -11,6 +11,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/wishlists")
 @RequiredArgsConstructor
@@ -28,11 +30,9 @@ public class WishlistController {
     }
 
     @GetMapping
-    public ApiResponse<PageResponse<WishlistResponse>> getMyWishlist(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ApiResponse.<PageResponse<WishlistResponse>>builder()
-                .result(wishlistService.getMyWishlist(page, size))
+    public ApiResponse<List<WishlistResponse>> getAllMyWishlist() {
+        return ApiResponse.<List<WishlistResponse>>builder()
+                .result(wishlistService.getAllMyWishlist())
                 .build();
     }
 

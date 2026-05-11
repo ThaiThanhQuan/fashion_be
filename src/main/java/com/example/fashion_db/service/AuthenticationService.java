@@ -147,8 +147,9 @@ public class AuthenticationService {
         invalidatedTokenRepository.save(invalidatedToken);
 
         var token = generateToken(user, VALID_DURATION);
+        var refreshToken = generateToken(user, REFRESH_DURATION);
 
-        return AuthenticationResponse.builder().token(token).authenticated(true).build();
+        return AuthenticationResponse.builder().token(token).refreshToken(refreshToken).authenticated(true).build();
     }
 
     private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {

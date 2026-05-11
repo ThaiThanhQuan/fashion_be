@@ -3,11 +3,13 @@ package com.example.fashion_db.service;
 import com.example.fashion_db.dto.request.CollectionRequest;
 import com.example.fashion_db.dto.response.CollectionResponse;
 import com.example.fashion_db.dto.response.PageResponse;
+import com.example.fashion_db.dto.response.ProductResponse;
 import com.example.fashion_db.entity.Collection;
 import com.example.fashion_db.entity.Product;
 import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
 import com.example.fashion_db.mapper.CollectionMapper;
+import com.example.fashion_db.mapper.ProductMapper;
 import com.example.fashion_db.repository.*;
 import com.example.fashion_db.specification.CollectionSpecification;
 import com.example.fashion_db.utils.SlugUtils;
@@ -35,6 +37,7 @@ public class CollectionService {
     ArtistRepository artistRepository;
     CollectionMapper collectionMapper;
     CloudinaryService cloudinaryService;
+    ProductService productService;
 
     public CollectionResponse createCollection(CollectionRequest request) {
         if (collectionRepository.existsByTitle(request.getTitle()))
@@ -54,39 +57,37 @@ public class CollectionService {
     public PageResponse<CollectionResponse> getAllCollections(int page, int size) {
         return PageResponse.of(collectionRepository
                 .findAllByOrderByCreatedAtDesc(PageRequest.of(page, size))
-                .map(collectionMapper::toCollectionResponse));
+                .map(this::mapWithProducts));
     }
 
     public CollectionResponse getCollectionById(String collectionId) {
-        return collectionMapper.toCollectionResponse(
-                collectionRepository.findById(collectionId)
-                        .orElseThrow(() -> new AppException(ErrorCode.COLLECTION_NOT_FOUND)));
+        return mapWithProducts(collectionRepository.findById(collectionId)
+                .orElseThrow(() -> new AppException(ErrorCode.COLLECTION_NOT_FOUND)));
     }
 
     public CollectionResponse getCollectionBySlug(String slug) {
-        return collectionMapper.toCollectionResponse(
-                collectionRepository.findBySlug(slug)
-                        .orElseThrow(() -> new AppException(ErrorCode.COLLECTION_NOT_FOUND)));
+        return mapWithProducts(collectionRepository.findBySlug(slug)
+                .orElseThrow(() -> new AppException(ErrorCode.COLLECTION_NOT_FOUND)));
     }
 
     public PageResponse<CollectionResponse> getCollectionsBySeason(String seasonId, int page, int size) {
         return PageResponse.of(collectionRepository.findBySeason_Id(seasonId, PageRequest.of(page, size))
-                .map(collectionMapper::toCollectionResponse));
+                .map(this::mapWithProducts));
     }
 
     public PageResponse<CollectionResponse> getCollectionsByCategory(String categoryId, int page, int size) {
         return PageResponse.of(collectionRepository.findByCategoryCollection_Id(categoryId, PageRequest.of(page, size))
-                .map(collectionMapper::toCollectionResponse));
+                .map(this::mapWithProducts));
     }
 
     public PageResponse<CollectionResponse> getCollectionsByArtist(String artistId, int page, int size) {
         return PageResponse.of(collectionRepository.findByArtist_Id(artistId, PageRequest.of(page, size))
-                .map(collectionMapper::toCollectionResponse));
+                .map(this::mapWithProducts));
     }
 
     public PageResponse<CollectionResponse> getCollectionsByYear(String year, int page, int size) {
         return PageResponse.of(collectionRepository.findByYear(year, PageRequest.of(page, size))
-                .map(collectionMapper::toCollectionResponse));
+                .map(this::mapWithProducts));
     }
 
     public CollectionResponse updateCollection(String collectionId, CollectionRequest request) {
@@ -164,7 +165,7 @@ public class CollectionService {
                 .and(CollectionSpecification.hasYear(year));
 
         return PageResponse.of(collectionRepository.findAll(spec, PageRequest.of(page, size, sort))
-                .map(collectionMapper::toCollectionResponse));
+                .map(this::mapWithProducts));
     }
 
     // Set relations helper
@@ -184,6 +185,18 @@ public class CollectionService {
             List<Product> products = productRepository.findAllById(productIds);
             collection.setProducts(products);
         }
+    }
+
+    private CollectionResponse mapWithProducts(Collection collection) {
+        CollectionResponse response = collectionMapper.toCollectionResponse(collection);
+
+        List<ProductResponse> products = collection.getProducts()
+                .stream()
+                .map(productService::mapProductWithImages)
+                .toList();
+
+        response.setProducts(products);
+        return response;
     }
 
 }

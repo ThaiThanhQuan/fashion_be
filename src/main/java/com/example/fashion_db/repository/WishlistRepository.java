@@ -6,9 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface WishlistRepository extends JpaRepository<Wishlist, String> {
-    Page<Wishlist> findByUser_Id(String userId, Pageable pageable);
     boolean existsByUser_IdAndProduct_Id(String userId, String productId);
     void deleteByUser_IdAndProduct_Id(String userId, String productId);
+    List<Wishlist> findByUser_Id(String userId);  // không có Pageable
 }
