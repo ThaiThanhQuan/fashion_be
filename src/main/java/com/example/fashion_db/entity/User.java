@@ -28,6 +28,7 @@ public class User {
     LocalDate dob;
     boolean gender;
     boolean active;
+    String avatar;
 
     @CreationTimestamp
     LocalDateTime created_at;

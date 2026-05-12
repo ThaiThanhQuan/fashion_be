@@ -40,10 +40,13 @@ public class SecurityConfig {
                                                         "/auth/login",
                                                         "/auth/refresh",
                                                         "/auth/introspec",
-                                                        "/auth/logout"
+                                                        "/auth/logout",
+                                                        "/auth/forgot-password",
+                                                         "/auth/reset-password"
                                         ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/product/feature").permitAll()
                 .requestMatchers(HttpMethod.GET, "/product").permitAll()
+                .requestMatchers(HttpMethod.GET, "/product/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/product/slug/**").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/collections").permitAll()

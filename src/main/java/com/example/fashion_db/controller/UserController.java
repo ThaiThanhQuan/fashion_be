@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @PutMapping("/myInfo")
-    ApiResponse<UserResponse> updateMyInfo(@RequestBody @Valid UserUpdateRequest request) {
+    ApiResponse<UserResponse> updateMyInfo(@ModelAttribute @Valid UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateMyInfo(request))
                 .build();

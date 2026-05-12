@@ -32,6 +32,7 @@ public class UserService {
     RoleRepository roleRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    CloudinaryService cloudinaryService;
 
     public PageResponse<UserResponse> getAllUser(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -56,11 +57,20 @@ public class UserService {
     }
 
     public UserResponse updateMyInfo(UserUpdateRequest request) {
-        String name  = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(name)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         userMapper.updateUser(user, request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        if (request.getPassword() != null && !request.getPassword().isBlank())
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        if (request.getAvatar() != null) {
+            if (user.getAvatar() != null)
+                cloudinaryService.deleteImage(user.getAvatar());
+            user.setAvatar(cloudinaryService.uploadImage(request.getAvatar()));
+        }
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

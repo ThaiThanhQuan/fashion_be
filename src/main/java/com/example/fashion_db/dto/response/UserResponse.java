@@ -22,6 +22,7 @@ public class UserResponse {
     boolean gender;
     boolean active;
     LocalDateTime created_at;
+    String avatar;
 
     Set<RoleResponse> roles;
 }

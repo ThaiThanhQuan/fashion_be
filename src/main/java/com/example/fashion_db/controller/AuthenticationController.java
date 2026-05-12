@@ -7,6 +7,7 @@ import com.example.fashion_db.dto.response.IntrospectResponse;
 import com.example.fashion_db.dto.response.UserResponse;
 import com.example.fashion_db.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 
 @RestController
@@ -57,5 +59,21 @@ public class AuthenticationController {
             throws ParseException, JOSEException {
         var result = authService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder().result(result).build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ApiResponse<Void> forgotPassword(@RequestBody ForgotPasswordRequest request) throws MessagingException, UnsupportedEncodingException {
+        authService.forgotPassword(request.getEmail());
+        return ApiResponse.<Void>builder()
+                .message("Email đã được gửi!")
+                .build();
+    }
+
+    @PostMapping("/reset-password")
+    public ApiResponse<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.getToken(), request.getNewPassword());
+        return ApiResponse.<Void>builder()
+                .message("Đặt lại mật khẩu thành công!")
+                .build();
     }
 }

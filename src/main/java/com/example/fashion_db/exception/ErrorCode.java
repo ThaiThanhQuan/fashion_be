@@ -43,6 +43,9 @@ public enum ErrorCode {
     CANNOT_CANCEL_ORDER(400, "Cannot cancel order that is not pending", HttpStatus.BAD_REQUEST),
     SERVICE_EXISTED(400, "Service already existed", HttpStatus.BAD_REQUEST),
 
+    INVALID_RESET_TOKEN(400, "Invalid reset token", HttpStatus.BAD_REQUEST),
+    RESET_TOKEN_USED(400, "Reset token already used", HttpStatus.BAD_REQUEST),
+    RESET_TOKEN_EXPIRED(400, "Reset token expired", HttpStatus.BAD_REQUEST),
     HIGHLIGHT_NOT_FOUND(404, "Highlight not found", HttpStatus.NOT_FOUND),
     SERVICE_NOT_FOUND(404, "Service not found", HttpStatus.NOT_FOUND),
     ORDER_NOT_FOUND(404, "Order not found", HttpStatus.NOT_FOUND),

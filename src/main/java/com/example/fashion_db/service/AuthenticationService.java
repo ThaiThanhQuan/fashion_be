@@ -5,12 +5,14 @@ import com.example.fashion_db.dto.response.AuthenticationResponse;
 import com.example.fashion_db.dto.response.IntrospectResponse;
 import com.example.fashion_db.dto.response.UserResponse;
 import com.example.fashion_db.entity.InvalidatedToken;
+import com.example.fashion_db.entity.PasswordResetToken;
 import com.example.fashion_db.entity.Role;
 import com.example.fashion_db.entity.User;
 import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
 import com.example.fashion_db.mapper.UserMapper;
 import com.example.fashion_db.repository.InvalidatedTokenRepository;
+import com.example.fashion_db.repository.PasswordResetTokenRepository;
 import com.example.fashion_db.repository.RoleRepository;
 import com.example.fashion_db.repository.UserRepository;
 import com.nimbusds.jose.*;
@@ -18,6 +20,8 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,8 +33,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashSet;
@@ -47,6 +53,8 @@ public class AuthenticationService {
     RoleRepository roleRepository;
     UserMapper userMapper;
     InvalidatedTokenRepository invalidatedTokenRepository;
+    PasswordResetTokenRepository passwordResetTokenRepository;
+    MailService mailService;
     PasswordEncoder passwordEncoder;
 
     @NonFinal
@@ -136,7 +144,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
 
-        var signJWT = verifyToken(request.getToken(), true);
+        var signJWT = verifyToken(request.getRefreshToken(), true);
         var jti = signJWT.getJWTClaimsSet().getJWTID();
         var expiryTime = signJWT.getJWTClaimsSet().getExpirationTime();
 
@@ -150,6 +158,49 @@ public class AuthenticationService {
         var refreshToken = generateToken(user, REFRESH_DURATION);
 
         return AuthenticationResponse.builder().token(token).refreshToken(refreshToken).authenticated(true).build();
+    }
+
+    // Gửi email reset password
+    @Transactional
+    public void forgotPassword(String email) throws MessagingException, UnsupportedEncodingException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Xóa token cũ nếu có
+        passwordResetTokenRepository.deleteByUser_Id(user.getId());
+
+        // Tạo token mới
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .token(token)
+                .user(user)
+                .used(false)
+                .expiryTime(LocalDateTime.now().plusMinutes(15))
+                .build();
+        passwordResetTokenRepository.save(resetToken);
+
+        // Gửi email
+        mailService.sendResetPasswordEmail(email, user.getUsername()  ,token);
+    }
+
+    // Đặt lại mật khẩu
+    public void resetPassword(String token, String newPassword) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_RESET_TOKEN));
+
+        if (resetToken.isUsed())
+            throw new AppException(ErrorCode.RESET_TOKEN_USED);
+
+        if (resetToken.getExpiryTime().isBefore(LocalDateTime.now()))
+            throw new AppException(ErrorCode.RESET_TOKEN_EXPIRED);
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // Đánh dấu token đã dùng
+        resetToken.setUsed(true);
+        passwordResetTokenRepository.save(resetToken);
     }
 
     private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
