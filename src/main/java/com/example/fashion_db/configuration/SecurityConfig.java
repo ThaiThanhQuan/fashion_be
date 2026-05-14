@@ -1,5 +1,6 @@
 package com.example.fashion_db.configuration;
 
+import com.example.fashion_db.service.OAuth2UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,11 +27,8 @@ public class SecurityConfig {
      CustomJwtDecoder customJwtDecoder;
      JwtAuthenticationConfig jwtAuthenticationConfig;
      JwtAuthenticationEntryPonint jwtAuthenticationEntryPonint;
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
-    }
+     OAuth2UserService oAuth2UserService;
+     OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
@@ -48,12 +46,18 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/product").permitAll()
                 .requestMatchers(HttpMethod.GET, "/product/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/product/slug/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/product/filter/**").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/collections").permitAll()
                 .requestMatchers(HttpMethod.GET, "/collections/slug/**").permitAll()
 
-                .requestMatchers(HttpMethod.GET, "/services").permitAll()
+                .requestMatchers(HttpMethod.GET, "/services/**").permitAll()
 
+                .requestMatchers(HttpMethod.GET, "/artists/**").permitAll()
+
+                .requestMatchers(HttpMethod.GET, "/artists/**").permitAll()
+
+                .requestMatchers(HttpMethod.GET, "/category_product").permitAll()
 
                         .anyRequest()
                         .authenticated());
@@ -64,6 +68,14 @@ public class SecurityConfig {
                                 .decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConfig.jwtAuthenticationConverter())) // Kiểm tra các quyền hạn
                 .authenticationEntryPoint(jwtAuthenticationEntryPonint) // xử lý những lỗi liên quan đến việc xác thực
+        );
+
+        // Cấu hình đăng nhập với OAuth2
+        httpSecurity.oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo
+                        .userService(oAuth2UserService)
+                )
+                .successHandler(oAuth2SuccessHandler)
         );
 
         // Tắt CSRF (vì đang làm REST API dùng JWT, không dùng session)

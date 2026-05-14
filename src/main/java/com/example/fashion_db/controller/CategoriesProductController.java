@@ -31,7 +31,6 @@ public class CategoriesProductController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<List<CategoriesProductResponse>> getAllCategoriesProduct() {
         return ApiResponse.<List<CategoriesProductResponse>>builder()
                 .result(categoriesProductService.getAll())

@@ -1,4 +1,4 @@
-package com.example.fashion_db.config;
+package com.example.fashion_db.configuration;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

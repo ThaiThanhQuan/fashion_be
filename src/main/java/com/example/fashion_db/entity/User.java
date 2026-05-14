@@ -33,7 +33,7 @@ public class User {
     @CreationTimestamp
     LocalDateTime created_at;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),

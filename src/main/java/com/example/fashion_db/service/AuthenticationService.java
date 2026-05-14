@@ -225,7 +225,7 @@ public class AuthenticationService {
 
     }
 
-    private String generateToken(User user, long duration) {
+    public String generateToken(User user, long duration) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
