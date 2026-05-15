@@ -38,6 +38,7 @@ public class CollectionService {
     CollectionMapper collectionMapper;
     CloudinaryService cloudinaryService;
     ProductService productService;
+    SubscriberService subscriberService;
 
     public CollectionResponse createCollection(CollectionRequest request) {
         if (collectionRepository.existsByTitle(request.getTitle()))
@@ -51,7 +52,13 @@ public class CollectionService {
         if (request.getThumbnail() != null)
             collection.setThumbnail(cloudinaryService.uploadImage(request.getThumbnail()));
 
-        return collectionMapper.toCollectionResponse(collectionRepository.save(collection));
+        CollectionResponse response = collectionMapper
+                .toCollectionResponse(collectionRepository.save(collection));
+
+        // 👈 Gửi mail cho tất cả subscriber
+        subscriberService.notifyNewCollection(response);
+
+        return response;
     }
 
     public PageResponse<CollectionResponse> getAllCollections(int page, int size) {

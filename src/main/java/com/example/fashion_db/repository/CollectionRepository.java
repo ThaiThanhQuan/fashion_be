@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,4 +19,6 @@ public interface CollectionRepository extends JpaRepository<Collection, String>,
     Page<Collection> findByArtist_Id(String artistId, Pageable pageable);
     Page<Collection> findByYear(String year, Pageable pageable);
     Page<Collection> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    List<Collection> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+            String title, String description);
 }

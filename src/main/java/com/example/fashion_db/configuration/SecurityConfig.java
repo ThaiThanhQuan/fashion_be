@@ -52,10 +52,14 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/collections/slug/**").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/services/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/workflows/service/**").permitAll()
+
+                .requestMatchers(HttpMethod.GET, "/pricing/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/timelines/**").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/artists/**").permitAll()
 
-                .requestMatchers(HttpMethod.GET, "/artists/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/search").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/category_product").permitAll()
 

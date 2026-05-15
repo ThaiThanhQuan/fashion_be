@@ -25,6 +25,7 @@ public enum ErrorCode {
     PHONE_INVALID(1018, "Phone format is invalid", HttpStatus.BAD_REQUEST),
     ADDRESS_INVALID(1020, "Address must be at least {min} characters", HttpStatus.BAD_REQUEST),
     ADDRESS_STATUS_REQUIRED(1021, "Address status is required", HttpStatus.BAD_REQUEST),
+    EMAIL_ALREADY_SUBSCRIBED(400, "Email already subscribed", HttpStatus.BAD_REQUEST),
 
     // Authentication & Authorization
     UNAUTHENTICATED(1008, "Unauthenticated", HttpStatus.UNAUTHORIZED),
