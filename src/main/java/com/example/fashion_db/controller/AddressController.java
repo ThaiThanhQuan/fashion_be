@@ -40,7 +40,6 @@ public class AddressController {
     }
 
     @GetMapping("/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<PageResponse<AddressResponse>> getAllAddressByUserId(
             @PathVariable String userId,
             @RequestParam(defaultValue = "0") int page,

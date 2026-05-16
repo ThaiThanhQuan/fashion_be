@@ -27,6 +27,5 @@ public class AddressRequest {
     @Size(min = 5, message = "ADDRESS_INVALID")
     String address;
 
-    @NotNull(message = "ADDRESS_STATUS_REQUIRED")
     Boolean active;
 }
