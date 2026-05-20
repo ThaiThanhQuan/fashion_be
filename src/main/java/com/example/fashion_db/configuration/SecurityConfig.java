@@ -58,6 +58,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/timelines/**").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/artists/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/product_variants/**").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/search").permitAll()
 

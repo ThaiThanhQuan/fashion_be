@@ -10,6 +10,7 @@ import com.example.fashion_db.entity.Role;
 import com.example.fashion_db.entity.User;
 import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
+import com.example.fashion_db.mail.MailService;
 import com.example.fashion_db.mapper.UserMapper;
 import com.example.fashion_db.repository.InvalidatedTokenRepository;
 import com.example.fashion_db.repository.PasswordResetTokenRepository;

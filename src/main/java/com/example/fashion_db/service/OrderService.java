@@ -4,14 +4,12 @@ import com.example.fashion_db.dto.request.OrderItemRequest;
 import com.example.fashion_db.dto.request.OrderRequest;
 import com.example.fashion_db.dto.response.OrderResponse;
 import com.example.fashion_db.dto.response.PageResponse;
-import com.example.fashion_db.entity.Order;
-import com.example.fashion_db.entity.OrderItem;
-import com.example.fashion_db.entity.Product;
-import com.example.fashion_db.entity.ProductVariants;
+import com.example.fashion_db.entity.*;
 import com.example.fashion_db.enums.OrderStatus;
 import com.example.fashion_db.enums.PaymentStatus;
 import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
+import com.example.fashion_db.mail.MailService;
 import com.example.fashion_db.mapper.OrderItemMapper;
 import com.example.fashion_db.mapper.OrderMapper;
 import com.example.fashion_db.repository.*;
@@ -41,7 +39,8 @@ public class OrderService {
     AddressRepository addressRepository;
     UserRepository userRepository;
     OrderMapper orderMapper;
-    OrderItemMapper orderItemMapper;
+    ProductImageRepository productImageRepository;
+    MailService mailService;
 
     private String getCurrentUserId() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -51,6 +50,8 @@ public class OrderService {
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
         String userId = getCurrentUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         // 1. Tính tiền
         List<OrderItem> orderItems = new ArrayList<>();
@@ -91,9 +92,8 @@ public class OrderService {
 
         // 3. Tạo order
         Order order = Order.builder()
-                .user(userRepository.findById(userId)
-                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)))
-                .address(addressRepository.findById(request.getAddressId())
+                .user(user)
+                .address(addressRepository.findByIdAndUser(request.getAddressId(), user)
                         .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_EXISTED)))
                 .subtotal(subtotal)
                 .shippingFee(shippingFee)
@@ -113,17 +113,23 @@ public class OrderService {
         });
         savedOrder.setOrderItems(orderItems);
 
-        return orderMapper.toOrderResponse(savedOrder);
+        try {
+            mailService.sendOrderConfirmEmail(savedOrder);
+        } catch (Exception e) {
+            log.error("Failed to send order confirmation email for order {}", savedOrder.getId(), e);
+        }
+
+        return buildOrderResponse(savedOrder);
     }
 
     public PageResponse<OrderResponse> getMyOrders(int page, int size) {
         String userId = getCurrentUserId();
         return PageResponse.of(orderRepository.findByUser_Id(userId, PageRequest.of(page, size))
-                .map(orderMapper::toOrderResponse));
+                .map(this::buildOrderResponse));
     }
 
     public OrderResponse getOrderById(String orderId) {
-        return orderMapper.toOrderResponse(
+        return buildOrderResponse(
                 orderRepository.findById(orderId)
                         .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND)));
     }
@@ -131,7 +137,7 @@ public class OrderService {
     // Admin: lấy tất cả orders
     public PageResponse<OrderResponse> getAllOrders(int page, int size) {
         return PageResponse.of(orderRepository.findAll(PageRequest.of(page, size))
-                .map(orderMapper::toOrderResponse));
+                .map(this::buildOrderResponse));
     }
 
     // Admin: cập nhật status
@@ -140,7 +146,7 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         order.setStatus(status);
-        return orderMapper.toOrderResponse(orderRepository.save(order));
+        return buildOrderResponse(orderRepository.save(order));
     }
 
     // User: hủy đơn
@@ -162,6 +168,18 @@ public class OrderService {
         });
 
         order.setStatus(OrderStatus.CANCELLED);
-        return orderMapper.toOrderResponse(orderRepository.save(order));
+        return buildOrderResponse(orderRepository.save(order));
+    }
+
+    private OrderResponse buildOrderResponse(Order order) {
+        OrderResponse response = orderMapper.toOrderResponse(order);
+        response.getOrderItems().forEach(item -> {
+            String thumbnail = productImageRepository
+                    .findByProduct_IdAndThumbnailTrue(item.getProduct().getId())
+                    .map(ProductImage::getImagePath)
+                    .orElse(null);
+            item.getProduct().setThumbnail(thumbnail);
+        });
+        return response;
     }
 }

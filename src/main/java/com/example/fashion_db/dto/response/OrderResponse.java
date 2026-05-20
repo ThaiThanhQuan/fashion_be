@@ -18,6 +18,7 @@ public class OrderResponse {
     String id;
     String userId;
     String addressId;
+    AddressResponse address;
     Long subtotal;
     Long shippingFee;
     Long tax;

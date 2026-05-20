@@ -8,6 +8,7 @@ import com.example.fashion_db.entity.Service;
 import com.example.fashion_db.enums.AppointmentStatus;
 import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
+import com.example.fashion_db.mail.MailService;
 import com.example.fashion_db.repository.AppointmentRepository;
 import com.example.fashion_db.repository.ArtistRepository;
 import com.example.fashion_db.repository.ServiceRepository;

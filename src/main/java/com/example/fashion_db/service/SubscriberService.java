@@ -5,6 +5,7 @@ import com.example.fashion_db.entity.Collection;
 import com.example.fashion_db.entity.Subscriber;
 import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
+import com.example.fashion_db.mail.MailService;
 import com.example.fashion_db.repository.SubscriberRepository;
 import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
