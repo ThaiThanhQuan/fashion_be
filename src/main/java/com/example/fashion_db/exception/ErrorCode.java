@@ -43,6 +43,7 @@ public enum ErrorCode {
     COLLECTION_PRODUCT_EXISTED(400, "Collection product already existed", HttpStatus.BAD_REQUEST),
     CANNOT_CANCEL_ORDER(400, "Cannot cancel order that is not pending", HttpStatus.BAD_REQUEST),
     SERVICE_EXISTED(400, "Service already existed", HttpStatus.BAD_REQUEST),
+    PAYMENT_FAILED(1010, "Payment failed", HttpStatus.BAD_REQUEST),
 
     INVALID_RESET_TOKEN(400, "Invalid reset token", HttpStatus.BAD_REQUEST),
     RESET_TOKEN_USED(400, "Reset token already used", HttpStatus.BAD_REQUEST),

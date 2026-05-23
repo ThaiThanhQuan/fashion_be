@@ -6,6 +6,7 @@ import com.example.fashion_db.dto.response.OrderResponse;
 import com.example.fashion_db.dto.response.PageResponse;
 import com.example.fashion_db.entity.*;
 import com.example.fashion_db.enums.OrderStatus;
+import com.example.fashion_db.enums.PaymentMethod;
 import com.example.fashion_db.enums.PaymentStatus;
 import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
@@ -41,6 +42,7 @@ public class OrderService {
     OrderMapper orderMapper;
     ProductImageRepository productImageRepository;
     MailService mailService;
+    VNPayService vnPayService;
 
     private String getCurrentUserId() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -104,22 +106,31 @@ public class OrderService {
                 .paymentStatus(PaymentStatus.PENDING)
                 .build();
 
-        Order savedOrder = orderRepository.saveAndFlush(order);
-
-        // 4. Lưu order items
+        Order savedOrder = orderRepository.save(order);
         orderItems.forEach(item -> {
             item.setOrder(savedOrder);
             orderItemRepository.save(item);
         });
-        savedOrder.setOrderItems(orderItems);
 
-        try {
-            mailService.sendOrderConfirmEmail(savedOrder);
-        } catch (Exception e) {
-            log.error("Failed to send order confirmation email for order {}", savedOrder.getId(), e);
+        Order finalOrder = orderRepository.findById(savedOrder.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        // COD → gửi mail xác nhận
+        if (request.getPaymentMethod() == PaymentMethod.COD) {
+            mailService.sendOrderConfirmEmail(finalOrder);
         }
 
-        return buildOrderResponse(savedOrder);
+        // BANK_TRANSFER → tạo VNPay URL
+        if (request.getPaymentMethod() == PaymentMethod.BANK_TRANSFER) {
+            String paymentUrl = vnPayService.createPaymentUrl(
+                    savedOrder.getId(),
+                    savedOrder.getGrandTotal()
+            );
+            finalOrder.setPaymentUrl(paymentUrl);
+            orderRepository.save(finalOrder);
+        }
+
+        return orderMapper.toOrderResponse(finalOrder);
     }
 
     public PageResponse<OrderResponse> getMyOrders(int page, int size) {

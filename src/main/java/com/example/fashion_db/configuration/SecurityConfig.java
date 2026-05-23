@@ -34,6 +34,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
         // Cấu hình quyền truy cập API
         httpSecurity.authorizeHttpRequests(request ->request
+                .requestMatchers(
+                        "/login/**",
+                        "/oauth2/**"
+                ).permitAll()
+
                         .requestMatchers(HttpMethod.POST,"/auth/register",
                                                         "/auth/login",
                                                         "/auth/refresh",
@@ -63,6 +68,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/search").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/category_product").permitAll()
+                .requestMatchers(HttpMethod.GET, "/payment/vnpay-return").permitAll()
+                .requestMatchers(HttpMethod.POST, "/ai/chat").permitAll()
 
                         .anyRequest()
                         .authenticated());

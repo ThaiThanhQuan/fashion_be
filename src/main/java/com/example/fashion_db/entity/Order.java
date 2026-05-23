@@ -53,4 +53,7 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     @Builder.Default
     List<OrderItem> orderItems = new ArrayList<>();
+
+    @Column(name = "payment_url", length = 2000)
+    String paymentUrl;
 }

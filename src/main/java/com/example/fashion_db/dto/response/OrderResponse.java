@@ -28,4 +28,5 @@ public class OrderResponse {
     PaymentStatus paymentStatus;
     LocalDateTime createdAt;
     List<OrderItemResponse> orderItems;
+    String paymentUrl;
 }

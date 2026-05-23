@@ -25,4 +25,9 @@ public interface ProductRepository extends JpaRepository<Product, String> , JpaS
     List<Product> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
             String title, String description);
 
+    List<Product> findTop5ByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+            String title,
+            String description
+    );
+
 }

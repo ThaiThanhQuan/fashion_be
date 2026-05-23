@@ -41,8 +41,7 @@ public class MailService {
         appointmentMailService.send(appointment);
     }
 
-    public void sendOrderConfirmEmail(Order order)
-            throws MessagingException, UnsupportedEncodingException {
-        orderMailService.send(order);
+    public void sendOrderConfirmEmail(Order order) {
+        orderMailService.sendOrderConfirmEmail(order);
     }
 }
