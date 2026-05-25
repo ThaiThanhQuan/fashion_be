@@ -6,6 +6,7 @@ target/
 
 # OR, if you only want to exclude specific ones:
 application.properties
+src/main/resources/**
 
 ### STS ###
 .apt_generated

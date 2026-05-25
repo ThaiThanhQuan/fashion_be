@@ -1,6 +1,5 @@
 package com.example.fashion_db.configuration;
 
-import com.example.fashion_db.service.OAuth2UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -11,10 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration // Đánh dấu đây là class cấu hình của Spring
@@ -27,8 +23,6 @@ public class SecurityConfig {
      CustomJwtDecoder customJwtDecoder;
      JwtAuthenticationConfig jwtAuthenticationConfig;
      JwtAuthenticationEntryPonint jwtAuthenticationEntryPonint;
-     OAuth2UserService oAuth2UserService;
-     OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
@@ -54,6 +48,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/product/filter/**").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/collections").permitAll()
+                .requestMatchers(HttpMethod.GET, "/collections/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/collections/slug/**").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/services/**").permitAll()
@@ -68,6 +63,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/search").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/category_product").permitAll()
+                .requestMatchers(HttpMethod.GET, "/category-collections").permitAll()
+                .requestMatchers(HttpMethod.GET, "/seasons").permitAll()
+
+                .requestMatchers(HttpMethod.POST, "/auth/google").permitAll()
+
                 .requestMatchers(HttpMethod.GET, "/payment/vnpay-return").permitAll()
                 .requestMatchers(HttpMethod.POST, "/ai/chat").permitAll()
 
@@ -80,14 +80,6 @@ public class SecurityConfig {
                                 .decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConfig.jwtAuthenticationConverter())) // Kiểm tra các quyền hạn
                 .authenticationEntryPoint(jwtAuthenticationEntryPonint) // xử lý những lỗi liên quan đến việc xác thực
-        );
-
-        // Cấu hình đăng nhập với OAuth2
-        httpSecurity.oauth2Login(oauth2 -> oauth2
-                .userInfoEndpoint(userInfo -> userInfo
-                        .userService(oAuth2UserService)
-                )
-                .successHandler(oAuth2SuccessHandler)
         );
 
         // Tắt CSRF (vì đang làm REST API dùng JWT, không dùng session)

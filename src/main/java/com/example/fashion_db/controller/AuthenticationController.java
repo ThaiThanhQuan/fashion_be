@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -38,6 +39,14 @@ public class AuthenticationController {
     ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
         return ApiResponse.<AuthenticationResponse>builder()
                 .result(authService.login(request))
+                .build();
+    }
+
+    @PostMapping("/google")
+    public ApiResponse<AuthenticationResponse> loginWithGoogle(
+            @RequestBody Map<String, String> request) throws Exception {
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(authService.loginWithGoogle(request.get("idToken")))
                 .build();
     }
 

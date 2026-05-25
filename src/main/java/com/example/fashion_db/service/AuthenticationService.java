@@ -16,6 +16,8 @@ import com.example.fashion_db.repository.InvalidatedTokenRepository;
 import com.example.fashion_db.repository.PasswordResetTokenRepository;
 import com.example.fashion_db.repository.RoleRepository;
 import com.example.fashion_db.repository.UserRepository;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -87,6 +89,45 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
         return userMapper.toUserResponse(user);
+    }
+
+    public AuthenticationResponse loginWithGoogle(String idToken) throws Exception {
+        // 1. Verify idToken với Firebase
+        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+
+        String email = decodedToken.getEmail();
+        String name = decodedToken.getName();
+        String avatar = decodedToken.getPicture();
+
+        // 2. Tìm hoặc tạo user
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> createGoogleUser(email, name, avatar));
+
+        // 3. Tạo token
+        String token = generateToken(user, VALID_DURATION);
+        String refreshToken = generateToken(user, REFRESH_DURATION);
+
+        return AuthenticationResponse.builder()
+                .token(token)
+                .refreshToken(refreshToken)
+                .authenticated(true)
+                .build();
+    }
+
+    private User createGoogleUser(String email, String name, String avatar) {
+        HashSet<Role> roles = new HashSet<>();
+        roleRepository.findByName("USER").ifPresent(roles::add);
+
+        User user = User.builder()
+                .email(email)
+                .username(name)
+                .avatar(avatar)
+                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .active(true)
+                .roles(roles)
+                .build();
+
+        return userRepository.save(user);
     }
 
     public AuthenticationResponse login(AuthenticationRequest request) {
