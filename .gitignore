@@ -6,6 +6,8 @@ target/
 
 # OR, if you only want to exclude specific ones:
 application.properties
+# Firebase secret
+src/main/resources/firebase-service-account.json
 src/main/resources/**
 
 ### STS ###
