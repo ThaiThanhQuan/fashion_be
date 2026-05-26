@@ -23,6 +23,7 @@ public class SecurityConfig {
      CustomJwtDecoder customJwtDecoder;
      JwtAuthenticationConfig jwtAuthenticationConfig;
      JwtAuthenticationEntryPonint jwtAuthenticationEntryPonint;
+     CorsConfig corsConfig;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
@@ -68,7 +69,7 @@ public class SecurityConfig {
 
                 .requestMatchers(HttpMethod.POST, "/auth/google").permitAll()
 
-                .requestMatchers(HttpMethod.GET, "/payment/vnpay-return").permitAll()
+                .requestMatchers(HttpMethod.POST, "/payment/sepay-webhook").permitAll()
                 .requestMatchers(HttpMethod.POST, "/ai/chat").permitAll()
 
                         .anyRequest()
@@ -81,6 +82,9 @@ public class SecurityConfig {
                                 .jwtAuthenticationConverter(jwtAuthenticationConfig.jwtAuthenticationConverter())) // Kiểm tra các quyền hạn
                 .authenticationEntryPoint(jwtAuthenticationEntryPonint) // xử lý những lỗi liên quan đến việc xác thực
         );
+
+        // Cấu hình CORS
+        httpSecurity.cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()));
 
         // Tắt CSRF (vì đang làm REST API dùng JWT, không dùng session)
         httpSecurity.csrf(AbstractHttpConfigurer::disable);

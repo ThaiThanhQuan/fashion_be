@@ -54,6 +54,6 @@ public class Order {
     @Builder.Default
     List<OrderItem> orderItems = new ArrayList<>();
 
-    @Column(name = "payment_url", length = 2000)
-    String paymentUrl;
+    @Column(name = "transfer_content")
+    String transferContent;
 }

@@ -11,14 +11,15 @@ import com.example.fashion_db.enums.PaymentStatus;
 import com.example.fashion_db.exception.AppException;
 import com.example.fashion_db.exception.ErrorCode;
 import com.example.fashion_db.mail.MailService;
-import com.example.fashion_db.mapper.OrderItemMapper;
 import com.example.fashion_db.mapper.OrderMapper;
 import com.example.fashion_db.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -42,7 +43,19 @@ public class OrderService {
     OrderMapper orderMapper;
     ProductImageRepository productImageRepository;
     MailService mailService;
-    VNPayService vnPayService;
+    SePayService sePayService;
+
+    @NonFinal
+    @Value("${sepay.bank-account}")
+    String bankAccount;
+
+    @NonFinal
+    @Value("${sepay.bank-name}")
+    String bankName;
+
+    @NonFinal
+    @Value("${sepay.account-name}")
+    String accountName;
 
     private String getCurrentUserId() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -115,22 +128,30 @@ public class OrderService {
         Order finalOrder = orderRepository.findById(savedOrder.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
+        OrderResponse response = orderMapper.toOrderResponse(finalOrder);
+
         // COD → gửi mail xác nhận
         if (request.getPaymentMethod() == PaymentMethod.COD) {
             mailService.sendOrderConfirmEmail(finalOrder);
         }
 
-        // BANK_TRANSFER → tạo VNPay URL
+        // BANK_TRANSFER → tạo QR SePay
         if (request.getPaymentMethod() == PaymentMethod.BANK_TRANSFER) {
-            String paymentUrl = vnPayService.createPaymentUrl(
-                    savedOrder.getId(),
-                    savedOrder.getGrandTotal()
-            );
-            finalOrder.setPaymentUrl(paymentUrl);
+            String transferContent = sePayService.generateTransferContent(savedOrder.getId());
+            String qrCode = sePayService.generateQRCode(savedOrder.getId(), savedOrder.getGrandTotal());
+
+            response.setQrCode(qrCode);
+            response.setTransferContent(transferContent);
+            response.setBankAccount(bankAccount);
+            response.setBankName(bankName);
+            response.setAccountName(accountName);
+
+            // Lưu transfer content vào order để match webhook
+            finalOrder.setTransferContent(transferContent);
             orderRepository.save(finalOrder);
         }
 
-        return orderMapper.toOrderResponse(finalOrder);
+        return response;
     }
 
     public PageResponse<OrderResponse> getMyOrders(int page, int size) {
@@ -157,7 +178,12 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         order.setStatus(status);
-        return buildOrderResponse(orderRepository.save(order));
+        Order savedOrder = orderRepository.save(order);
+
+        // Gửi email thông báo cho user
+        mailService.sendOrderStatusUpdateEmail(savedOrder, status);
+
+        return buildOrderResponse(savedOrder);
     }
 
     // User: hủy đơn

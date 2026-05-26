@@ -2,6 +2,7 @@ package com.example.fashion_db.mail;
 
 import com.example.fashion_db.dto.response.AppointmentResponse;
 import com.example.fashion_db.entity.Order;
+import com.example.fashion_db.enums.OrderStatus;
 import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -43,5 +44,9 @@ public class MailService {
 
     public void sendOrderConfirmEmail(Order order) {
         orderMailService.sendOrderConfirmEmail(order);
+    }
+
+    public void sendOrderStatusUpdateEmail(Order order, OrderStatus newStatus) {
+        orderMailService.sendOrderStatusUpdateEmail(order, newStatus);
     }
 }

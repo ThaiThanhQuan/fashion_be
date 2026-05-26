@@ -29,4 +29,9 @@ public class OrderResponse {
     LocalDateTime createdAt;
     List<OrderItemResponse> orderItems;
     String paymentUrl;
+    String qrCode;
+    String transferContent;
+    String bankAccount;
+    String bankName;
+    String accountName;
 }
