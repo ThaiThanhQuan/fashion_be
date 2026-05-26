@@ -19,6 +19,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -72,5 +74,25 @@ public class AppointmentService {
         mailService.sendAppointmentConfirmEmail(response);
 
         return response;
+    }
+
+    public List<AppointmentResponse> getAllAppointments() {
+        return appointmentRepository.findAll().stream()
+                .map(appointment -> AppointmentResponse.builder()
+                        .id(appointment.getId())
+                        .customerName(appointment.getCustomerName())
+                        .customerEmail(appointment.getCustomerEmail())
+                        .customerPhone(appointment.getCustomerPhone())
+                        .specialRequest(appointment.getSpecialRequest())
+                        .appointmentDate(appointment.getAppointmentDate())
+                        .appointmentTime(appointment.getAppointmentTime())
+                        .status(appointment.getStatus())
+                        .createdAt(appointment.getCreatedAt())
+                        .serviceId(appointment.getService().getId())
+                        .serviceTitle(appointment.getService().getTitle())
+                        .artistId(appointment.getArtist().getId())
+                        .artistName(appointment.getArtist().getName())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

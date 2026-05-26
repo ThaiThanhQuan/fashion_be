@@ -15,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.stream.Collectors;
+import com.example.fashion_db.dto.response.SubscriberResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +38,16 @@ public class SubscriberService {
 
         // Gửi mail xác nhận
         mailService.sendSubscribeConfirmEmail(email);
+    }
+
+    public List<SubscriberResponse> getAllSubscribers() {
+        return subscriberRepository.findAll().stream()
+                .map(subscriber -> SubscriberResponse.builder()
+                        .id(subscriber.getId())
+                        .email(subscriber.getEmail())
+                        .subscribedAt(subscriber.getSubscribedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     // Gửi mail cho tất cả subscriber khi có collection mới
