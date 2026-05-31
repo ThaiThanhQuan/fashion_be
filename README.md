@@ -1,8 +1,8 @@
 # Fashion Backend
 
-Backend REST API cho hệ thống Fashion, xây dựng bằng Spring Boot. Project xử lý xác thực người dùng, quản lý sản phẩm, bộ sưu tập, dịch vụ, đơn hàng, lịch hẹn, wishlist, email, thanh toán SePay, upload ảnh Cloudinary, Firebase và AI chat qua Groq.
+REST API backend for the Fashion system, built with Spring Boot. The project handles user authentication, product management, collections, services, orders, appointments, wishlists, email notifications, SePay payments, Cloudinary image uploads, Firebase integration, and AI chat through Groq.
 
-## Công nghệ sử dụng
+## Tech Stack
 
 - Java 21
 - Spring Boot 4.0.5
@@ -16,22 +16,22 @@ Backend REST API cho hệ thống Fashion, xây dựng bằng Spring Boot. Proje
 - Quartz Scheduler
 - Docker
 
-## Yêu cầu môi trường
+## Requirements
 
 - JDK 21
-- MySQL 8 hoặc tương thích
-- Maven không bắt buộc vì repo đã có Maven Wrapper
-- Tài khoản hoặc credential cho các dịch vụ ngoài nếu dùng đầy đủ tính năng: Cloudinary, Gmail App Password, Firebase, SePay, Groq
+- MySQL 8 or compatible
+- Maven is optional because the repository includes Maven Wrapper
+- External service credentials if you want to use all integrations: Cloudinary, Gmail App Password, Firebase, SePay, Groq
 
-## Cấu hình database
+## Database Setup
 
-Tạo database MySQL:
+Create the MySQL database:
 
 ```sql
 CREATE DATABASE fashion_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-Ứng dụng mặc định chạy với:
+Default application settings:
 
 ```properties
 server.port=8080
@@ -40,17 +40,17 @@ spring.datasource.url=jdbc:mysql://localhost:3306/fashion_db
 spring.jpa.hibernate.ddl-auto=update
 ```
 
-Base URL local:
+Local base URL:
 
 ```text
 http://localhost:8080/fashion
 ```
 
-## Cấu hình biến môi trường
+## Environment Configuration
 
-Các cấu hình đang nằm trong `src/main/resources/application.properties`. Khi chạy local hoặc deploy, nên override bằng biến môi trường thay vì commit secret thật vào source code.
+Runtime configuration is currently defined in `src/main/resources/application.properties`. For local development and deployment, override sensitive values through environment variables instead of committing real secrets to source control.
 
-| Chức năng | Property | Gợi ý env |
+| Feature | Property | Suggested env |
 | --- | --- | --- |
 | MySQL URL | `spring.datasource.url` | `SPRING_DATASOURCE_URL` |
 | MySQL username | `spring.datasource.username` | `SPRING_DATASOURCE_USERNAME` |
@@ -67,9 +67,9 @@ Các cấu hình đang nằm trong `src/main/resources/application.properties`. 
 | SePay webhook secret | `sepay.webhook-secret` | `SEPAY_WEBHOOK_SECRET` |
 | Groq API key | `groq.api-key` | `GROQ_API_KEY` |
 
-JWT signer key cần đủ dài cho thuật toán HS512, tối thiểu 64 ký tự.
+The JWT signing key must be long enough for HS512. Use at least 64 characters.
 
-## Chạy project local
+## Run Locally
 
 Windows PowerShell:
 
@@ -83,43 +83,43 @@ Linux/macOS:
 ./mvnw spring-boot:run
 ```
 
-Build file JAR:
+Build the JAR:
 
 ```powershell
 .\mvnw.cmd clean package
 ```
 
-Chạy JAR sau khi build:
+Run the built JAR:
 
 ```powershell
 java -jar target\fashion_db-0.0.1-SNAPSHOT.jar
 ```
 
-## Test
+## Tests
 
 ```powershell
 .\mvnw.cmd test
 ```
 
-Hiện project có test khởi động context Spring Boot tại `src/test/java/com/example/fashion_db/FashionDbApplicationTests.java`.
+The project currently includes a Spring Boot context startup test at `src/test/java/com/example/fashion_db/FashionDbApplicationTests.java`.
 
 ## Docker
 
-Build image:
+Build the image:
 
 ```powershell
 docker build -t fashion-be .
 ```
 
-Run container:
+Run the container:
 
 ```powershell
 docker run --name fashion-be -p 8080:8080 fashion-be
 ```
 
-Lưu ý: `pom.xml` đang dùng Java 21. Nếu build Docker gặp lỗi `invalid target release: 21`, hãy đổi image trong `Dockerfile` sang bản JDK 21.
+Note: `pom.xml` uses Java 21. If Docker build fails with `invalid target release: 21`, update the images in `Dockerfile` to JDK 21 variants.
 
-## Cấu trúc thư mục chính
+## Main Project Structure
 
 ```text
 src/main/java/com/example/fashion_db
@@ -127,7 +127,7 @@ src/main/java/com/example/fashion_db
 ├── controller       # REST controllers
 ├── dto              # Request/response models
 ├── entity           # JPA entities
-├── enums            # Enum domain
+├── enums            # Domain enums
 ├── exception        # Global exception handling
 ├── job              # Quartz jobs
 ├── mail             # Email services
@@ -138,17 +138,17 @@ src/main/java/com/example/fashion_db
 └── utils            # Utility helpers
 ```
 
-## Xác thực và phân quyền
+## Authentication and Authorization
 
-API dùng JWT Bearer Token qua Spring Security OAuth2 Resource Server.
+The API uses JWT Bearer Tokens through Spring Security OAuth2 Resource Server.
 
-Header cho các API cần đăng nhập:
+Header for protected APIs:
 
 ```http
 Authorization: Bearer <access_token>
 ```
 
-Các API public chính:
+Main public APIs:
 
 - `POST /fashion/auth/register`
 - `POST /fashion/auth/login`
@@ -166,13 +166,13 @@ Các API public chính:
 - `POST /fashion/payment/sepay-webhook`
 - `POST /fashion/ai/chat`
 
-Các API còn lại mặc định cần token hợp lệ.
+All other APIs require a valid access token by default.
 
-## Nhóm API chính
+## Main API Groups
 
 Base path: `/fashion`
 
-| Nhóm | Path |
+| Group | Path |
 | --- | --- |
 | Auth | `/auth` |
 | Users | `/users` |
@@ -199,9 +199,9 @@ Base path: `/fashion`
 | Payment webhook | `/payment/sepay-webhook` |
 | AI chat | `/ai/chat` |
 
-## Ví dụ request
+## Request Examples
 
-Đăng nhập:
+Login:
 
 ```http
 POST /fashion/auth/login
@@ -213,22 +213,22 @@ Content-Type: application/json
 }
 ```
 
-Lấy danh sách sản phẩm:
+Get products:
 
 ```http
 GET /fashion/product?page=1&size=10
 ```
 
-Gọi API cần đăng nhập:
+Call a protected API:
 
 ```http
 GET /fashion/users/myInfo
 Authorization: Bearer <access_token>
 ```
 
-## Lưu ý bảo mật
+## Security Notes
 
-- Không commit credential thật của database, Cloudinary, Gmail, Firebase, SePay hoặc Groq.
-- Nên dùng biến môi trường hoặc profile riêng cho local, staging và production.
-- File Firebase service account nên đặt ngoài source code khi deploy, ví dụ `/root/firebase-service-account.json`.
-- Nếu repository đã từng public secret, cần rotate lại các key tương ứng.
+- Do not commit real credentials for the database, Cloudinary, Gmail, Firebase, SePay, or Groq.
+- Use environment variables or separate profiles for local, staging, and production.
+- Keep the Firebase service account file outside the source tree in deployment, for example `/root/firebase-service-account.json`.
+- If this repository has ever exposed real secrets, rotate the affected keys.
