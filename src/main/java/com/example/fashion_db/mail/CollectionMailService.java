@@ -27,7 +27,8 @@ public class CollectionMailService {
     public void send(String to, String collectionTitle, String collectionSlug, String thumbnail)
             throws MessagingException, UnsupportedEncodingException {
 
-        String collectionUrl = "http://localhost:3000/collection/" + collectionSlug;
+//        String collectionUrl = "http://localhost:3000/collection/" + collectionSlug;
+        String collectionUrl = "https://fashion-opal-nu.vercel.app/collection/" + collectionSlug;
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
